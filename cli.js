@@ -1,7 +1,6 @@
 import process from "process";
 import { println } from "./utils.js";
 const prompt = require("prompt");
-const utils = require("./utils.js");
 
 const commandQuery = [
   {
@@ -13,18 +12,18 @@ const commandQuery = [
 ];
 
 function printHelp() {
-  utils.println("----- HELP ------");
-  utils.println();
-  utils.println("--- CONTROLS ---");
-  utils.println("  west    : move west");
-  utils.println("  south   : move south");
-  utils.println("  east   : move south");
-  utils.println("  north   : move south");
-  utils.println();
-  utils.println("  exit   : move south");
-  utils.println("  help   : move south");
-  utils.println();
-  utils.println("----- HELP ------");
+  println("----- HELP ------");
+  println();
+  println("--- CONTROLS ---");
+  println("  west    : move west");
+  println("  south   : move south");
+  println("  east   : move south");
+  println("  north   : move south");
+  println();
+  println("  exit   : move south");
+  println("  help   : move south");
+  println();
+  println("----- HELP ------");
 }
 
 exports.start = function (onErr) {
@@ -39,7 +38,7 @@ exports.nextCommand = function () {
       return onErr(err);
     }
 
-    utils.println("Command-line input received:");
-    utils.println("  Command: " + result.command);
+    println("Command-line input received:");
+    println("  Command: " + result.command);
   });
 };

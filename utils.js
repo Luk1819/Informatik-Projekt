@@ -5,3 +5,7 @@ exports.print = function (value) {
 exports.println = function (value = "") {
   print(`${value}\n`);
 };
+
+exports.lines = function (str) {
+  return str.split(/[\r\n]+/);
+};
