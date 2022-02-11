@@ -1,7 +1,7 @@
 exports.print = function (value) {
-  process.stdout.write(value)
-}
+  process.stdout.write(value);
+};
 
-exports.println = function (value="") {
-  print(`${value}\n`)
-}
+exports.println = function (value = "") {
+  print(`${value}\n`);
+};
