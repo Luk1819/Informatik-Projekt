@@ -1,7 +1,7 @@
 import process from "process";
 import { println } from "./utils.js";
 import prompt from "prompt";
-import colors from "@colors/colors/safe";
+import colors from "@colors/colors/safe.js";
 
 const commandQuery = [
   {
