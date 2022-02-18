@@ -1,6 +1,8 @@
 var cli = require("./cli.js");
-import { println } from "./utils.js";
+var utils = require("./utils.js");
 var maze = require(".maze.js")
+
+var println = utils.println;
 
 cli.start();
 
