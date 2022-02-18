@@ -1,6 +1,6 @@
 import process from "process";
 import { println } from "./utils.js";
-const prompt = require("prompt");
+import prompt from "prompt";
 
 const commandQuery = [
   {
