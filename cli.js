@@ -35,7 +35,6 @@ var commands = (exports.commands = {
   north: 3,
   load: 4,
   exit: 5,
-  help: 6,
 });
 
 exports.start = function (onErr) {
@@ -44,10 +43,10 @@ exports.start = function (onErr) {
   printHelp();
 };
 
-exports.nextCommand = function () {
+exports.nextCommand = function (callback) {
   prompt.get(commandQuery, function (err, result) {
     if (err) {
-      return onErr(err);
+      callback(onErr(err));
     }
 
     var cmd = result.command;
@@ -56,36 +55,34 @@ exports.nextCommand = function () {
     println("  Command: " + cmd);
 
     if (cmd == "w" || cmd == "west") {
-      return {
+      callback({
         command: commands.west,
-      };
+      });
     } else if (cmd == "s" || cmd == "south") {
-      return {
+      callback({
         command: commands.south,
-      };
+      });
     } else if (cmd == "e" || cmd == "east") {
-      return {
+      callback({
         command: commands.east,
-      };
+      });
     } else if (cmd == "n" || cmd == "north") {
-      return {
+      callback({
         command: commands.north,
-      };
+      });
     } else if (cmd == "exit") {
-      return {
+      callback({
         command: commands.help,
-      };
-      return commands.exit;
+      });
     } else if (cmd == "help") {
-      return {
-        command: commands.help,
-      };
+      printHelp();
+      exports.nextCommand(callback);
     } else if (cmd.startsWith("load ")) {
       var file = cmd.split(" ")[1];
-      return {
+      callback({
         command: commands.load,
         file: file,
-      };
+      });
     }
   });
 };
