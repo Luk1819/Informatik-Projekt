@@ -7,9 +7,16 @@
   "homepage": "https://baldu.at/geheim-projekt/",
   "repository": "https://github.com/Luk1819/Informatik-Projekt",
   "bugs": "https://github.com/Luk1819/Informatik-Projekt/issues",
+  "engines": {
+    "node": ">=14.0.0"
+  },
 
   "type": "module",
   "dependencies": {
     "prompt": "1.2.2"
+  },
+
+  "scripts": {
+    "start": "node main.js"
   }
 }
