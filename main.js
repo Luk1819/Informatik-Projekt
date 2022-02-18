@@ -1,6 +1,6 @@
 import * as cli from "./cli.js";
 import { println } from "./utils.js";
-import * as maze from ".maze.js";
+import * as maze from "./maze.js";
 
 cli.start();
 
