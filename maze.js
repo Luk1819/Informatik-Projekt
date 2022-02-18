@@ -1,5 +1,5 @@
 import { lines } from  "./utils.js";
-const fs = require("fs");
+import * as fs from "fs";
 
 export const types = {
   wall: 0,
