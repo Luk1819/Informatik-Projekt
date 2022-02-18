@@ -1,12 +1,12 @@
 import { lines } from  "./utils.js";
 const fs = require("fs");
 
-const types = {
+export const types = {
   wall: 0,
   stone: 1,
 };
 
-function create(x, y) {
+export function create(x, y) {
   array = [];
   for (let i = 0; i < x; i++) {
     layer = [];
@@ -17,7 +17,7 @@ function create(x, y) {
   }
 };
 
-function read(data) {
+export function read(data) {
   var lines = lines(data);
   var result = [];
   for (line in lines) {
@@ -30,7 +30,7 @@ function read(data) {
   }
 };
 
-function load(path, callback) {
+export function load(path, callback) {
   fs.readFile(path, "utf-8", function (err, data) {
     if (err) throw err;
 
@@ -38,6 +38,3 @@ function load(path, callback) {
     callback(maze);
   });
 };
-
-
-export { types, create, read, load }

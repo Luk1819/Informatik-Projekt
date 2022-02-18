@@ -1,6 +1,6 @@
 import process from "process";
 import { println } from "./utils.js";
-import prompt from "prompt";
+import * as prompt from "prompt";
 
 const commandQuery = [
   {
@@ -28,22 +28,22 @@ function printHelp() {
   println("----- HELP ------");
 }
 
-var commands = (exports.commands = {
+export const commands = {
   west: 0,
   south: 1,
   east: 2,
   north: 3,
   load: 4,
   exit: 5,
-});
+};
 
-function start(onErr) {
+export function start(onErr) {
   prompt.start();
 
   printHelp();
 };
 
-function nextCommand(callback) {
+export function nextCommand(callback) {
   prompt.get(commandQuery, function (err, result) {
     if (err) {
       callback(onErr(err));
@@ -86,6 +86,3 @@ function nextCommand(callback) {
     }
   });
 };
-
-
-export { start, nextCommand }

@@ -1,14 +1,11 @@
-function print(value) {
+export function print(value) {
   process.stdout.write(value);
 };
 
-function println(value = "") {
+export function println(value = "") {
   print(`${value}\n`);
 };
 
-function lines(str) {
+export function lines(str) {
   return str.split(/[\r\n]+/);
 };
-
-
-export { print, println, lines }
