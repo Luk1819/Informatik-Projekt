@@ -1,10 +1,12 @@
 import process from "process";
 import { println } from "./utils.js";
 import prompt from "prompt";
+import colors from "@colors/colors/safe";
 
 const commandQuery = [
   {
     name: "command",
+    description: colors.yellow("Command: "),
     validator: /^(w(est)?|s(outh)?|n(orth)?|e(ast)?|exit|help|load [^\s]*)$/,
     warning:
       "Allowed commands are: 'west', 'south', 'north', 'east', 'exit', 'help', 'load'",
@@ -12,20 +14,18 @@ const commandQuery = [
 ];
 
 function printHelp() {
-  println("----- HELP ------");
+  println(colors.green("----- HELP ------"));
+  println(colors.cyan("--- CONTROLS ---"));
+  println(colors.cyan("  west        : move west"));
+  println(colors.cyan("  south       : move south"));
+  println(colors.cyan("  east        : move south"));
+  println(colors.cyan("  north       : move south"));
   println();
-  println("--- CONTROLS ---");
-  println("  west        : move west");
-  println("  south       : move south");
-  println("  east        : move south");
-  println("  north       : move south");
+  println(colors.cyan("  load <file> : load a maze from a file"));
   println();
-  println("  load <file> : load a maze from a file");
-  println();
-  println("  exit        : move south");
-  println("  help        : move south");
-  println();
-  println("----- HELP ------");
+  println(colors.cyan("  exit        : move south"));
+  println(colors.cyan("  help        : move south"));
+  println(colors.green("----- HELP ------"));
 }
 
 export const commands = {
@@ -40,13 +40,20 @@ export const commands = {
 export function start(onErr) {
   prompt.start();
 
+  prompt.message = "";
+  prompt.delimiter = "";
+
   printHelp();
 };
+
+function onErr(err) {
+  println("ERROR: " + err)
+}
 
 export function nextCommand(callback) {
   prompt.get(commandQuery, function (err, result) {
     if (err) {
-      callback(onErr(err));
+      onErr(err);
     }
 
     var cmd = result.command;

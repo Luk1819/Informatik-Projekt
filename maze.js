@@ -1,5 +1,22 @@
-import { lines } from  "./utils.js";
 import * as fs from "fs";
+
+class Maze {
+  array;
+  start;
+  end;
+
+  constructor(array) {
+    this.array = array;
+  }
+
+  get(x, y) {
+    return array[x][y];
+  }
+
+  set(x, y, value) {
+    array[x][y] = value;
+  }
+}
 
 export const types = {
   wall: 0,
@@ -15,20 +32,21 @@ export function create(x, y) {
     }
     array.push(layer);
   }
-};
+  return Maze(array);
+}
 
 export function read(data) {
-  var lines = lines(data);
-  var result = [];
-  for (line in lines) {
-    var chars = line.split(" ");
-    var layer = [];
-    for (c in chars) {
-      layer.push(parseInt(c));
-    }
-    result.push(layer);
-  }
-};
+  var json = JSON.parse(data);
+  var maze = Maze(json.maze);
+  
+  maze.start = json.start.split(" ").map(function (value) {
+    return parseInt(value);
+  });
+  maze.end = json.end.split(" ").map(function (value) {
+    return parseInt(value);
+  });;
+  return maze;
+}
 
 export function load(path, callback) {
   fs.readFile(path, "utf-8", function (err, data) {
@@ -37,4 +55,4 @@ export function load(path, callback) {
     var maze = read(data);
     callback(maze);
   });
-};
+}
