@@ -1,1 +1,2 @@
 # Informatik-Projekt
+Labyrinth
