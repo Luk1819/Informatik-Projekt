@@ -1,6 +1,6 @@
-var cli = require("./cli.js");
+import * as cli from "./cli.js";
 import { println } from "./utils.js";
-var maze = require(".maze.js")
+import * as maze from ".maze.js";
 
 cli.start();
 

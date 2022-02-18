@@ -1,12 +1,12 @@
-const utils = require("./utils.js");
+import { lines } from  "./utils.js";
 const fs = require("fs");
 
-var types = (exports.types = {
+const types = {
   wall: 0,
   stone: 1,
-});
+};
 
-var create = (exports.create = function (x, y) {
+function create(x, y) {
   array = [];
   for (let i = 0; i < x; i++) {
     layer = [];
@@ -15,10 +15,10 @@ var create = (exports.create = function (x, y) {
     }
     array.push(layer);
   }
-});
+};
 
-var read = (exports.read = function (data) {
-  var lines = utils.lines(data);
+function read(data) {
+  var lines = lines(data);
   var result = [];
   for (line in lines) {
     var chars = line.split(" ");
@@ -28,13 +28,16 @@ var read = (exports.read = function (data) {
     }
     result.push(layer);
   }
-});
+};
 
-var load = (exports.load = function (path, callback) {
+function load(path, callback) {
   fs.readFile(path, "utf-8", function (err, data) {
     if (err) throw err;
 
     var maze = read(data);
     callback(maze);
   });
-});
+};
+
+
+export { types, create, read, load }

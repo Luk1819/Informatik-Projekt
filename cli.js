@@ -37,13 +37,13 @@ var commands = (exports.commands = {
   exit: 5,
 });
 
-exports.start = function (onErr) {
+function start(onErr) {
   prompt.start();
 
   printHelp();
 };
 
-exports.nextCommand = function (callback) {
+function nextCommand(callback) {
   prompt.get(commandQuery, function (err, result) {
     if (err) {
       callback(onErr(err));
@@ -76,7 +76,7 @@ exports.nextCommand = function (callback) {
       });
     } else if (cmd == "help") {
       printHelp();
-      exports.nextCommand(callback);
+      nextCommand(callback);
     } else if (cmd.startsWith("load ")) {
       var file = cmd.split(" ")[1];
       callback({
@@ -86,3 +86,6 @@ exports.nextCommand = function (callback) {
     }
   });
 };
+
+
+export { start, nextCommand }
