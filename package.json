@@ -1,4 +1,13 @@
 {
+  "name": "mazes",
+  "version": "1.0.0",
+  "description": "Mazes",
+  "main": "main.js",
+  "author": "ArcheCraft / Andrej / Lukas",
+  "homepage": "https://baldu.at/geheim-projekt/",
+  "repository": "https://github.com/Luk1819/Informatik-Projekt",
+  "bugs": "https://github.com/Luk1819/Informatik-Projekt/issues",
+
   "type": "module",
   "dependencies": {
     "prompt": "1.2.2"
