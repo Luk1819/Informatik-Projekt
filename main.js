@@ -5,20 +5,23 @@ import * as maze from "./maze.js";
 cli.start();
 
 cli.nextCommand(function (cmd) {
-  if (cmd.command == cli.commands.west) {
-    println("Moving west!");
-  } else if (cmd.command == cli.commands.south) {
-    println("Moving south!");
-  } else if (cmd.command == cli.commands.east) {
-    println("Moving east!");
-  } else if (cmd.command == cli.commands.north) {
-    println("Moving north!");
+  if (cmd.command == cli.commands.start) {
+    println("Starting!");
+    return {
+      cont: false,
+      start: true,
+    };
   } else if (cmd.command == cli.commands.exit) {
     println("Exiting!");
-    return false;
+    return {
+      cont: false,
+      start: false,
+    };
   } else if (cmd.command == cli.commands.load) {
     println(`Loading file ${cmd.file}!`);
   }
 
-  return true;
+  return {
+    cont: true,
+  };
 });

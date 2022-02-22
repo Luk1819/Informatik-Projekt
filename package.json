@@ -13,7 +13,7 @@
 
   "type": "module",
   "dependencies": {
-    "prompt": "1.2.2",
+    "@colors/colors": "1.5.0",
     "readline-sync": "1.4.10"
   },
 

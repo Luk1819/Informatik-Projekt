@@ -1,18 +1,7 @@
 import process from "process";
 import { println } from "./utils.js";
-import prompt from "prompt";
 import colors from "@colors/colors/safe.js";
 import * as readline from "readline-sync";
-
-const commandQuery = [
-  {
-    name: "command",
-    description: colors.yellow(" > "),
-    validator: /^(exit|help|load [^\s]*|start)$/,
-    warning:
-      "Allowed commands are: 'west', 'south', 'north', 'east', 'exit', 'help', 'load'",
-  },
-];
 
 function printHelp() {
   println(colors.green("----- HELP ------"));
@@ -32,10 +21,7 @@ export const commands = {
 };
 
 export function start(onErr) {
-  prompt.start();
-
-  prompt.message = "";
-  prompt.delimiter = "";
+  readline.setDefaultOptions({prompt: colors.yellow("> ")});
 
   printHelp();
 }
@@ -45,14 +31,14 @@ function onErr(err) {
 }
 
 export async function nextCommand(callback) {
-  var cont = true;
-  while (cont) {
-    try {
-      var result = await prompt.get(commandQuery);
-      var cmd = result.command;
+  var cont = {
+    cont: true,
+  };
 
-      println("Command-line input received:");
-      println("  Command: " + cmd);
+  while (cont.cont) {
+    try {
+      var args = readline.promptCL();
+      var cmd = args[0];
 
       if (cmd == "start") {
         cont = callback({
@@ -60,20 +46,21 @@ export async function nextCommand(callback) {
         });
       } else if (cmd == "exit") {
         cont = callback({
-          command: commands.help,
+          command: commands.exit,
         });
       } else if (cmd == "help") {
         printHelp();
-        nextCommand();
       } else if (cmd.startsWith("load ")) {
-        var file = cmd.split(" ")[1];
         cont = callback({
           command: commands.load,
-          file: file,
+          file: args[1],
         });
       }
     } catch (err) {
       onErr(err);
     }
   }
+
+  delete cont.cont;
+  return cont;
 }
