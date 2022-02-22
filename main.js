@@ -4,23 +4,23 @@ import * as maze from "./maze.js";
 
 cli.start();
 
-function callback(cmd) {
+cli.nextCommand(function () {
+  var cmd = cli.nextCommand();
+
   if (cmd.command == cli.commands.west) {
-    println("Moving west!")
+    println("Moving west!");
   } else if (cmd.command == cli.commands.south) {
-    println("Moving south!")
+    println("Moving south!");
   } else if (cmd.command == cli.commands.east) {
-    println("Moving east!")
+    println("Moving east!");
   } else if (cmd.command == cli.commands.north) {
-    println("Moving north!")
+    println("Moving north!");
   } else if (cmd.command == cli.commands.exit) {
-    println("Exiting!")
-    return
+    println("Exiting!");
+    return false;
   } else if (cmd.command == cli.commands.load) {
-    println(`Loading file ${cmd.file}!`)
+    println(`Loading file ${cmd.file}!`);
   }
 
-  cli.nextCommand(callback);
-}
-
-cli.nextCommand(callback);
+  return true;
+});

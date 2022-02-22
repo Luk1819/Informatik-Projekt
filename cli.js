@@ -2,12 +2,13 @@ import process from "process";
 import { println } from "./utils.js";
 import prompt from "prompt";
 import colors from "@colors/colors/safe.js";
+import * as readline from "readline-sync";
 
 const commandQuery = [
   {
     name: "command",
-    description: colors.yellow("Command: "),
-    validator: /^(w(est)?|s(outh)?|n(orth)?|e(ast)?|exit|help|load [^\s]*)$/,
+    description: colors.yellow(" > "),
+    validator: /^(exit|help|load [^\s]*|start)$/,
     warning:
       "Allowed commands are: 'west', 'south', 'north', 'east', 'exit', 'help', 'load'",
   },
@@ -16,12 +17,8 @@ const commandQuery = [
 function printHelp() {
   println(colors.green("----- HELP ------"));
   println(colors.cyan("--- CONTROLS ---"));
-  println(colors.cyan("  west        : move west"));
-  println(colors.cyan("  south       : move south"));
-  println(colors.cyan("  east        : move south"));
-  println(colors.cyan("  north       : move south"));
-  println();
   println(colors.cyan("  load <file> : load a maze from a file"));
+  println(colors.cyan("  start       : starts the game"));
   println();
   println(colors.cyan("  exit        : move south"));
   println(colors.cyan("  help        : move south"));
@@ -29,12 +26,9 @@ function printHelp() {
 }
 
 export const commands = {
-  west: 0,
-  south: 1,
-  east: 2,
-  north: 3,
-  load: 4,
-  exit: 5,
+  start: 0,
+  load: 1,
+  exit: 2,
 };
 
 export function start(onErr) {
@@ -44,52 +38,42 @@ export function start(onErr) {
   prompt.delimiter = "";
 
   printHelp();
-};
+}
 
 function onErr(err) {
-  println("ERROR: " + err)
+  println(`ERROR: ${err}`);
 }
 
 export function nextCommand(callback) {
-  prompt.get(commandQuery, function (err, result) {
-    if (err) {
+  var cont = true;
+  while (cont) {
+    try {
+      var result = await prompt.get(commandQuery);
+      var cmd = result.command;
+
+      println("Command-line input received:");
+      println("  Command: " + cmd);
+
+      if (cmd == "start") {
+        cont = callback({
+          command: commands.start,
+        });
+      } else if (cmd == "exit") {
+        cont = callback({
+          command: commands.help,
+        });
+      } else if (cmd == "help") {
+        printHelp();
+        nextCommand();
+      } else if (cmd.startsWith("load ")) {
+        var file = cmd.split(" ")[1];
+        cont = callback({
+          command: commands.load,
+          file: file,
+        });
+      }
+    } catch (err) {
       onErr(err);
     }
-
-    var cmd = result.command;
-
-    println("Command-line input received:");
-    println("  Command: " + cmd);
-
-    if (cmd == "w" || cmd == "west") {
-      callback({
-        command: commands.west,
-      });
-    } else if (cmd == "s" || cmd == "south") {
-      callback({
-        command: commands.south,
-      });
-    } else if (cmd == "e" || cmd == "east") {
-      callback({
-        command: commands.east,
-      });
-    } else if (cmd == "n" || cmd == "north") {
-      callback({
-        command: commands.north,
-      });
-    } else if (cmd == "exit") {
-      callback({
-        command: commands.help,
-      });
-    } else if (cmd == "help") {
-      printHelp();
-      nextCommand(callback);
-    } else if (cmd.startsWith("load ")) {
-      var file = cmd.split(" ")[1];
-      callback({
-        command: commands.load,
-        file: file,
-      });
-    }
-  });
-};
+  }
+}

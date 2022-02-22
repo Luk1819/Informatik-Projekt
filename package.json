@@ -13,7 +13,8 @@
 
   "type": "module",
   "dependencies": {
-    "prompt": "1.2.2"
+    "prompt": "1.2.2",
+    "readline-sync": "1.4.10"
   },
 
   "scripts": {

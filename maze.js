@@ -5,8 +5,10 @@ class Maze {
   start;
   end;
 
-  constructor(array) {
+  constructor(array, start, end) {
     this.array = array;
+    this.start = start;
+    this.end = end;
   }
 
   get(x, y) {
@@ -32,27 +34,23 @@ export function create(x, y) {
     }
     array.push(layer);
   }
-  return Maze(array);
+  return Maze(array, [0, 0], [x - 1, y - 1]);
 }
 
 export function read(data) {
   var json = JSON.parse(data);
-  var maze = Maze(json.maze);
   
-  maze.start = json.start.split(" ").map(function (value) {
+  var start = json.start.split(" ").map(function (value) {
     return parseInt(value);
   });
-  maze.end = json.end.split(" ").map(function (value) {
+  var end = json.end.split(" ").map(function (value) {
     return parseInt(value);
-  });;
-  return maze;
+  });
+
+  return Maze(json.maze, start, end);
 }
 
-export function load(path, callback) {
-  fs.readFile(path, "utf-8", function (err, data) {
-    if (err) throw err;
-
-    var maze = read(data);
-    callback(maze);
-  });
+export function load(path) {
+  var data = await fs.readFile(path, "utf-8");
+  return read(data);
 }
