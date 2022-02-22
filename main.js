@@ -4,9 +4,7 @@ import * as maze from "./maze.js";
 
 cli.start();
 
-cli.nextCommand(function () {
-  var cmd = cli.nextCommand();
-
+cli.nextCommand(function (cmd) {
   if (cmd.command == cli.commands.west) {
     println("Moving west!");
   } else if (cmd.command == cli.commands.south) {

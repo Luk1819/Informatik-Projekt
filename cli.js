@@ -44,7 +44,7 @@ function onErr(err) {
   println(`ERROR: ${err}`);
 }
 
-export function nextCommand(callback) {
+export async function nextCommand(callback) {
   var cont = true;
   while (cont) {
     try {

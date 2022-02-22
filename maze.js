@@ -50,7 +50,7 @@ export function read(data) {
   return Maze(json.maze, start, end);
 }
 
-export function load(path) {
+export async function load(path) {
   var data = await fs.readFile(path, "utf-8");
   return read(data);
 }

@@ -31,7 +31,7 @@ export function read(data) {
   return create(json.type, json.health, json.damage, json.speed, json.name)
 }
 
-export function load(path) {
+export async function load(path) {
   var data = await fs.readFile(path, "utf-8");
   return read(data);
 }
