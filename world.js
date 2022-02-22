@@ -11,9 +11,7 @@ class World {
 
   constructor(maze) {
     this.maze = maze;
-    this.entities = {
-      0: {}
-    }
+    this.entities = {};
   }
 
   get(x, y) {

@@ -17,18 +17,20 @@ class Enemy {
   }
 }
 
-export const types = {
-};
+export const types = {};
+
+export const enemiesByType = {};
 
 export function create(type, health, damage, speed, name) {
   var enemy = Enemy(type, health, damage, speed, name);
-  types[type] = enemy;
+  types[name] = enemy;
+  enemiesByType[type] = enemy;
   return enemy;
-};
+}
 
 export function read(data) {
   var json = JSON.parse(data);
-  return create(json.type, json.health, json.damage, json.speed, json.name)
+  return create(json.type, json.health, json.damage, json.speed, json.name);
 }
 
 export async function load(path) {
