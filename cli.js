@@ -44,7 +44,7 @@ export async function menu(callback) {
         println(colors.cyan("  exit        : move south"));
         println(colors.cyan("  help        : move south"));
         println(colors.green("----- HELP ------"));
-      } else if (cmd.startsWith("load ")) {
+      } else if (cmd == "load") {
         cont = callback({
           command: commands.load,
           file: args[1],
@@ -75,7 +75,10 @@ export async function ingame(callback) {
 
   while (cont.cont) {
     try {
-      var char = readline.keyIn("", { hideEchoBack: true });
+      var char = readline.keyIn("", {
+        hideEchoBack: true,
+        mask: "",
+      });
 
       if (special) {
         if (char == "A") {
@@ -121,7 +124,7 @@ export async function ingame(callback) {
         } else if (char == "e") {
           cont = callback({
             command: igcommands.exit,
-          })
+          });
         }
       }
     } catch (err) {
