@@ -10,7 +10,7 @@ await enemies.discover();
 var currMaze = maze.load("./mazes/maze1.json");
 var currWorld = world.create(currMaze);
 
-console.log(world1)
+console.log(currWorld)
 
 var res = cli.menu(function (cmd) {
   if (cmd.command == cli.commands.start) {
