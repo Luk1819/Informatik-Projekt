@@ -12,7 +12,7 @@ var currWorld = world.create(currMaze);
 
 console.log(currWorld)
 
-var res = cli.menu(function (cmd) {
+var res = await cli.menu(function (cmd) {
   if (cmd.command == cli.commands.start) {
     println("Starting!");
     return {
@@ -40,7 +40,7 @@ var res = cli.menu(function (cmd) {
 console.log(res)
 
 if (res.start) {
-  cli.ingame(function (cmd) {
+  await cli.ingame(function (cmd) {
     return {
       cont: true,
     };
