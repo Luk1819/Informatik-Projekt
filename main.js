@@ -7,8 +7,8 @@ import * as enemies from "./enemies.js";
 cli.start();
 
 await enemies.discover();
-var maze1 = maze.load("./mazes/maze1.json");
-var world1 = world.create(maze1);
+var currMaze = maze.load("./mazes/maze1.json");
+var currWorld = world.create(currMaze);
 
 console.log(world1)
 
@@ -26,7 +26,10 @@ var res = cli.menu(function (cmd) {
       start: false,
     };
   } else if (cmd.command == cli.commands.load) {
-    println(`Loading file ${cmd.file}!`);
+    println(`Loading file ${cmd.file}...`);
+    currMaze = maze.load(`./mazes/${cmd.file}.json`);
+    currWorld = world.create(currMaze);
+    println(`Loaded file ${cmd.file}!`);
   }
 
   return {
