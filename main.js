@@ -7,7 +7,7 @@ import * as enemies from "./enemies.js";
 cli.start();
 
 enemies.discover();
-var maze1 = maze.load("./mazes/maze1.json");
+var maze1 = await maze.load("./mazes/maze1.json");
 var world1 = world.create(maze1);
 
 var res = cli.menu(function (cmd) {

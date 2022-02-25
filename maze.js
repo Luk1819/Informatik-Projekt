@@ -49,6 +49,6 @@ export function read(data) {
 }
 
 export async function load(path) {
-  var data = await fs.readFile(path, "utf-8");
+  var data = await fs.readFile(path);
   return read(data);
 }
