@@ -1,5 +1,5 @@
 import * as fs from "fs";
-import * as path from "path";
+import { path } from "path";
 import { __dirname } from "./utils.js"
 
 class Maze {
