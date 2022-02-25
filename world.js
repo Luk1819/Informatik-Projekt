@@ -13,6 +13,7 @@ class World {
   player;
 
   constructor(maze) {
+    console.log(maze);
     this.maze = maze;
     this.entities = {};
     var [x, y] = maze.start;
