@@ -42,12 +42,8 @@ export function create(x, y) {
 export function read(data) {
   var json = JSON.parse(data);
   
-  var start = json.start.split(" ").map(function (value) {
-    return parseInt(value);
-  });
-  var end = json.end.split(" ").map(function (value) {
-    return parseInt(value);
-  });
+  var start = json.start;
+  var end = json.end;
 
   return new Maze(json.maze, start, end, json.enemies);
 }
