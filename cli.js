@@ -11,8 +11,6 @@ export const commands = {
 
 export function start(onErr) {
   readline.setDefaultOptions({ prompt: colors.yellow("> ") });
-
-  printHelp();
 }
 
 function onErr(err) {
