@@ -11,7 +11,6 @@ var maze1 = maze.load("./mazes/maze1.json");
 var world1 = world.create(maze1);
 
 console.log(world1)
-console.log(typeof(world1))
 
 var res = cli.menu(function (cmd) {
   if (cmd.command == cli.commands.start) {
@@ -34,6 +33,8 @@ var res = cli.menu(function (cmd) {
     cont: true,
   };
 });
+
+console.log(res)
 
 if (res.start) {
   cli.ingame(function (cmd) {
