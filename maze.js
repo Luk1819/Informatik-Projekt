@@ -1,5 +1,5 @@
 import * as fs from "fs";
-import path from "path";
+import * as path from "path";
 import { __dirname } from "./utils.js"
 
 class Maze {
@@ -50,7 +50,7 @@ export function read(data) {
   return new Maze(json.maze, start, end, json.enemies);
 }
 
-export function load(path) {
-  var data = fs.readFileSync(path.join(__dirname, path), { encoding: 'utf8' });
+export function load(path1) {
+  var data = fs.readFileSync(path.join(__dirname, path1), { encoding: 'utf8' });
   return read(data);
 }
