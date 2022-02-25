@@ -47,7 +47,7 @@ export function read(data) {
 }
 
 export async function load(path1) {
-  var data = fs.readFileSync(path);
+  var data = fs.readFileSync(path1);
   return read(data);
 }
 
