@@ -75,9 +75,7 @@ export async function ingame(callback) {
 
   while (cont.cont) {
     try {
-      var char = readline.keyIn();
-
-      println("Key pressed: " + char);
+      var char = readline.keyIn("", { hideEchoBack: true });
 
       if (special) {
         if (char == "A") {
@@ -120,6 +118,10 @@ export async function ingame(callback) {
           cont = callback({
             command: igcommands.left,
           });
+        } else if (char == "e") {
+          cont = callback({
+            command: igcommands.exit,
+          })
         }
       }
     } catch (err) {
