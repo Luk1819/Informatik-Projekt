@@ -23,8 +23,8 @@ class World {
     });
     x = 0;
     y = 0;
-    for (let row in maze.ememies) {
-      for (let e in row) {
+    for (let row of maze.ememies) {
+      for (let e of row) {
         if (e != -1) {
           this.set(x, y, enemies.enemiesByType[e].createInstance())
         }
