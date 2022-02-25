@@ -1,10 +1,16 @@
 import * as cli from "./cli.js";
 import { println } from "./utils.js";
 import * as maze from "./maze.js";
+import * as world from "./world.js";
+import * as enemies from "./enemies.js";
 
 cli.start();
 
-cli.nextCommand(function (cmd) {
+enemies.discover();
+var maze = maze.load("./mazes/maze1.json");
+var world = world.create(maze);
+
+var res = cli.menu(function (cmd) {
   if (cmd.command == cli.commands.start) {
     println("Starting!");
     return {
@@ -25,3 +31,11 @@ cli.nextCommand(function (cmd) {
     cont: true,
   };
 });
+
+if (res.start) {
+  cli.ingame(function (cmd) {
+    return {
+      cont: true,
+    };
+  });
+}

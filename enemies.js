@@ -1,4 +1,5 @@
 import * as fs from "fs";
+import { globby } from "globby";
 
 class Enemy {
   type;
@@ -14,6 +15,16 @@ class Enemy {
     this.damage = damage;
     this.speed = speed;
     this.name = name;
+  }
+
+  createInstance() {
+    return {
+      type: this.type,
+      health: this.health,
+      damage: this.damage,
+      speed: this.speed,
+      name: this.name
+    };
   }
 }
 
@@ -36,4 +47,11 @@ export function read(data) {
 export async function load(path) {
   var data = await fs.readFile(path, "utf-8");
   return read(data);
+}
+
+export async function discover(path) {
+  var entries = await globby("enemies/*.json");
+  for (let file in entries) {
+    load(file);
+  }
 }

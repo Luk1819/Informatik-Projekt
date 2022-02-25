@@ -3,17 +3,6 @@ import { println } from "./utils.js";
 import colors from "@colors/colors/safe.js";
 import * as readline from "readline-sync";
 
-function printHelp() {
-  println(colors.green("----- HELP ------"));
-  println(colors.cyan("--- CONTROLS ---"));
-  println(colors.cyan("  load <file> : load a maze from a file"));
-  println(colors.cyan("  start       : starts the game"));
-  println();
-  println(colors.cyan("  exit        : move south"));
-  println(colors.cyan("  help        : move south"));
-  println(colors.green("----- HELP ------"));
-}
-
 export const commands = {
   start: 0,
   load: 1,
@@ -21,7 +10,7 @@ export const commands = {
 };
 
 export function start(onErr) {
-  readline.setDefaultOptions({prompt: colors.yellow("> ")});
+  readline.setDefaultOptions({ prompt: colors.yellow("> ") });
 
   printHelp();
 }
@@ -30,7 +19,7 @@ function onErr(err) {
   println(`ERROR: ${err}`);
 }
 
-export async function nextCommand(callback) {
+export async function menu(callback) {
   var cont = {
     cont: true,
   };
@@ -49,7 +38,14 @@ export async function nextCommand(callback) {
           command: commands.exit,
         });
       } else if (cmd == "help") {
-        printHelp();
+        println(colors.green("----- HELP ------"));
+        println(colors.cyan("--- CONTROLS ---"));
+        println(colors.cyan("  load <file> : load a maze from a file"));
+        println(colors.cyan("  start       : starts the game"));
+        println();
+        println(colors.cyan("  exit        : move south"));
+        println(colors.cyan("  help        : move south"));
+        println(colors.green("----- HELP ------"));
       } else if (cmd.startsWith("load ")) {
         cont = callback({
           command: commands.load,
@@ -63,4 +59,36 @@ export async function nextCommand(callback) {
 
   delete cont.cont;
   return cont;
+}
+
+export const igcommands = {
+  up: 0,
+  left: 1,
+  down: 2,
+  right: 3,
+  exit: 4,
+};
+
+export async function ingame(callback) {
+  var cont = {
+    cont: true,
+  };
+
+  while (cont.cont) {
+    try {
+      var char = readline.keyIn();
+
+      println("Key pressed: " + char);
+
+      if (char == "h") {
+        println("THERE IS NO HELP FOR YOU!");
+      } else if ((char = "w" || char == "")) {
+        cont = callback({
+          command: igcommands.up,
+        });
+      }
+    } catch (err) {
+      onErr(err);
+    }
+  }
 }

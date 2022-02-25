@@ -4,11 +4,13 @@ class Maze {
   array;
   start;
   end;
+  enemies;
 
-  constructor(array, start, end) {
+  constructor(array, start, end, enemies) {
     this.array = array;
     this.start = start;
     this.end = end;
+    this.enemies = enemies;
   }
 
   get(x, y) {
@@ -47,7 +49,7 @@ export function read(data) {
     return parseInt(value);
   });
 
-  return Maze(json.maze, start, end);
+  return Maze(json.maze, start, end, json.enemies);
 }
 
 export async function load(path) {
