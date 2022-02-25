@@ -47,12 +47,12 @@ export function read(data) {
 }
 
 export async function load(path1) {
-  var data = fs.readFileSync(path1);
+  var data = fs.readFileSync(path.join(__dirname, path1), { encoding: 'utf8' });
   return read(data);
 }
 
 export async function discover() {
-  var entries = await globby(path.join(__dirname, "enemies/*.json"));
+  var entries = await globby("enemies/*.json");
   for (let file in entries) {
     load(file);
   }
