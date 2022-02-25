@@ -83,3 +83,7 @@ class World {
     }
   }
 }
+
+export function create(maze) {
+  return World(maze);
+}
