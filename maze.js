@@ -16,11 +16,11 @@ class Maze {
   }
 
   get(x, y) {
-    return array[x][y];
+    return this.array[x][y];
   }
 
   set(x, y, value) {
-    array[x][y] = value;
+    this.array[x][y] = value;
   }
 }
 

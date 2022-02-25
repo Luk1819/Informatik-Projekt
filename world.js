@@ -13,7 +13,6 @@ class World {
   player;
 
   constructor(maze) {
-    console.log(maze);
     this.maze = maze;
     this.entities = {};
     var [x, y] = maze.start;
@@ -37,7 +36,7 @@ class World {
   }
 
   get(x, y) {
-    var line = entities[x];
+    var line = this.entities[x];
     if (line) {
       return line[y];
     } else {
@@ -46,12 +45,12 @@ class World {
   }
 
   set(x, y, value) {
-    var line = entities[x];
+    var line = this.entities[x];
     if (line) {
       line[y] = value;
     } else {
-      entities[x] = {};
-      entities[x][y] = value;
+      this.entities[x] = {};
+      this.entities[x][y] = value;
     }
   }
 
