@@ -36,7 +36,7 @@ export function create(x, y) {
     }
     array.push(layer);
   }
-  return Maze(array, [0, 0], [x - 1, y - 1]);
+  return new Maze(array, [0, 0], [x - 1, y - 1]);
 }
 
 export function read(data) {
@@ -49,7 +49,7 @@ export function read(data) {
     return parseInt(value);
   });
 
-  return Maze(json.maze, start, end, json.enemies);
+  return new Maze(json.maze, start, end, json.enemies);
 }
 
 export async function load(path) {

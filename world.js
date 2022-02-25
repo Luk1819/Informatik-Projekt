@@ -85,5 +85,5 @@ class World {
 }
 
 export function create(maze) {
-  return World(maze);
+  return new World(maze);
 }

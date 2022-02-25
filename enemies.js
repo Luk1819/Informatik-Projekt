@@ -33,7 +33,7 @@ export const types = {};
 export const enemiesByType = {};
 
 export function create(type, health, damage, speed, name) {
-  var enemy = Enemy(type, health, damage, speed, name);
+  var enemy = new Enemy(type, health, damage, speed, name);
   types[name] = enemy;
   enemiesByType[type] = enemy;
   return enemy;
