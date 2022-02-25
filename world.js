@@ -8,10 +8,13 @@ export const directions = {
 class World {
   maze;
   entities;
+  player;
 
   constructor(maze) {
     this.maze = maze;
     this.entities = {};
+    this.player = maze.start;
+    set()
   }
 
   get(x, y) {
@@ -34,14 +37,35 @@ class World {
   }
 
   walk(dir) {
+    var [x, y] = this.player;
     if (dir == directions.west) {
+      if(this.get(x - 1, y)  != null && this.get(x - 1, y) == 1) {
+        return true;
+      }
+      else {
+        return false;
+      }
     } else if (dir == directions.south) {
+      if(this.get(x, y + 1)  != null && this.get(x, y + 1) == 1) {
+        return true;
+      }
+      else {
+        return false;
+      }
     } else if (dir == directions.east) {
+      if(this.get(x + 1, y)  != null && this.get(x + 1, y) == 1) {
+        return true;
+      }
+      else {
+        return false;
+      }
     } else if (dir == directions.north) {
+      if(this.get(x, y - 1)  != null && this.get(x, y - 1) == 1) {
+        return true;
+      }
+      else {
+        return false;
+      }
     }
   }
-}
-
-export function create(maze) {
-  return World(maze);
 }
