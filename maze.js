@@ -1,4 +1,5 @@
 import * as fs from "fs";
+import * as path from "path";
 
 class Maze {
   array;
@@ -48,7 +49,7 @@ export function read(data) {
   return new Maze(json.maze, start, end, json.enemies);
 }
 
-export async function load(path) {
-  var data = await fs.readFile(path);
+export function load(path) {
+  var data = fs.readFileSync(path.join(__dirname, path), { encoding: 'utf8' });
   return read(data);
 }
