@@ -23,8 +23,6 @@ class World {
     });
     x = 0;
     y = 0;
-    console.log(enemies.enemiesByType)
-    console.log(typeof(enemies.enemiesByType))
     for (let row of maze.enemies) {
       for (let e of row) {
         if (e != -1) {
