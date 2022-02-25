@@ -1,5 +1,6 @@
 import * as fs from "fs";
 import { globby } from "globby";
+import { __dirname } from "./utils.js"
 
 class Enemy {
   type;
@@ -44,8 +45,8 @@ export function read(data) {
   return create(json.type, json.health, json.damage, json.speed, json.name);
 }
 
-export async function load(path) {
-  var data = await fs.readFile(path, "utf-8");
+export async function load(path1) {
+  var data = fs.readFileSync(path.join(__dirname, path1), { encoding: 'utf8' });
   return read(data);
 }
 
