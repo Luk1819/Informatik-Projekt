@@ -102,9 +102,9 @@ export async function ingame(callback) {
       } else {
         if (char == "h") {
           println("THERE IS NO HELP FOR YOU!");
-        } else if ((char = "[")) {
+        } else if (char == "[") {
           special = true;
-        } else if ((char = "w")) {
+        } else if (char == "w") {
           cont = callback({
             command: igcommands.up,
           });
