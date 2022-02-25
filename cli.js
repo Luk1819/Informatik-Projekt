@@ -22,6 +22,8 @@ export async function menu(callback) {
     cont: true,
   };
 
+  //commands
+
   while (cont.cont) {
     try {
       var args = readline.promptCL();
@@ -66,6 +68,8 @@ export const igcommands = {
   right: 3,
   exit: 4,
 };
+
+//callback ingame
 
 export async function ingame(callback) {
   var cont = {

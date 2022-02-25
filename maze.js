@@ -2,6 +2,8 @@ import * as fs from "fs";
 import * as path from "path";
 import { __dirname } from "./utils.js"
 
+//maze with array start end enemies
+
 class Maze {
   array;
   start;

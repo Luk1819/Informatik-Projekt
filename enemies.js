@@ -3,6 +3,8 @@ import { globby } from "globby";
 import * as path from "path";
 import { __dirname } from "./utils.js"
 
+//enemy with health etc
+
 class Enemy {
   type;
   health;

@@ -7,6 +7,8 @@ export const directions = {
   north: 3,
 };
 
+//world with maze entities player
+
 class World {
   maze;
   entities;
@@ -53,6 +55,8 @@ class World {
       this.entities[x][y] = value;
     }
   }
+
+  //movement
 
   walk(dir) {
     var [x, y] = this.player;
