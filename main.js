@@ -41,7 +41,7 @@ if (res.start) {
   await cli.ingame(function (cmd) {
     console.log(cmd)
 
-    if (cnd.command == cli.igcommands.exit) {
+    if (cmd.command == cli.igcommands.exit) {
       println("Exiting!");
       return {
         cont: false,
