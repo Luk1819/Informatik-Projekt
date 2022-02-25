@@ -53,10 +53,7 @@ export async function load(path1) {
 
 export async function discover() {
   var entries = await globby("enemies/*.json");
-  console.log("Entries: " + entries)
-  console.log("Type: " + typeof(entries))
   for (let file of entries) {
-    console.log("File: " + file)
     load(file);
   }
 }
