@@ -51,7 +51,7 @@ export async function load(path1) {
   return read(data);
 }
 
-export async function discover(path) {
+export async function discover() {
   var entries = await globby(path.join(__dirname, "enemies/*.json"));
   for (let file in entries) {
     load(file);
