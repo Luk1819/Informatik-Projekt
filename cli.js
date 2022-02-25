@@ -22,8 +22,6 @@ export async function menu(callback) {
     cont: true,
   };
 
-  //commands
-
   while (cont.cont) {
     try {
       var args = readline.promptCL();
@@ -69,12 +67,11 @@ export const igcommands = {
   exit: 4,
 };
 
-//callback ingame
-
 export async function ingame(callback) {
   var cont = {
     cont: true,
   };
+  var special = false;
 
   while (cont.cont) {
     try {
@@ -82,12 +79,48 @@ export async function ingame(callback) {
 
       println("Key pressed: " + char);
 
-      if (char == "h") {
-        println("THERE IS NO HELP FOR YOU!");
-      } else if ((char = "w" || char == "")) {
-        cont = callback({
-          command: igcommands.up,
-        });
+      if (special) {
+        if (char == "A") {
+          cont = callback({
+            command: igcommands.up,
+          });
+        } else if (char == "B") {
+          cont = callback({
+            command: igcommands.down,
+          });
+        } else if (char == "C") {
+          cont = callback({
+            command: igcommands.right,
+          });
+        } else if (char == "D") {
+          cont = callback({
+            command: igcommands.left,
+          });
+        }
+
+        special = false;
+      } else {
+        if (char == "h") {
+          println("THERE IS NO HELP FOR YOU!");
+        } else if ((char = "[")) {
+          special = true;
+        } else if ((char = "w")) {
+          cont = callback({
+            command: igcommands.up,
+          });
+        } else if (char == "s") {
+          cont = callback({
+            command: igcommands.down,
+          });
+        } else if (char == "d") {
+          cont = callback({
+            command: igcommands.right,
+          });
+        } else if (char == "a") {
+          cont = callback({
+            command: igcommands.left,
+          });
+        }
       }
     } catch (err) {
       onErr(err);

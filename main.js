@@ -41,6 +41,7 @@ console.log(res)
 
 if (res.start) {
   await cli.ingame(function (cmd) {
+    console.log(cmd)
     return {
       cont: true,
     };
