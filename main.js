@@ -46,20 +46,28 @@ if (res.start) {
             };
         } else if (cmd.command == cli.igcommands.up) {
             if (!currWorld.walk(world.directions.north)) {
-                println("Illegal move!")
+                println("Illegal move!");
             }
         } else if (cmd.command == cli.igcommands.left) {
             if (!currWorld.walk(world.directions.west)) {
-                println("Illegal move!")
+                println("Illegal move!");
             }
         } else if (cmd.command == cli.igcommands.down) {
             if (!currWorld.walk(world.directions.south)) {
-                println("Illegal move!")
+                println("Illegal move!");
             }
         } else if (cmd.command == cli.igcommands.right) {
             if (!currWorld.walk(world.directions.east)) {
-                println("Illegal move!")
+                println("Illegal move!");
             }
+        }
+        
+        if (currWorld.isFinished()) {
+            println("Finished!");
+            return {
+                cont: false,
+                print: true
+            };
         }
         
         return {

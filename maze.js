@@ -26,6 +26,10 @@ class Maze {
     set(x, y, value) {
         this.array[x][y] = value;
     }
+    
+    isWall(x, y) {
+        return x >= 0 && x < this.size[0] && y >= 0 && y <= this.size[1] && this.get(x, y) != types.wall;
+    }
 }
 
 export const types = {

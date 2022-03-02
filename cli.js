@@ -73,92 +73,108 @@ export async function ingame(world, callback) {
     };
     let special = false;
     
-    while (cont.cont) {
-        try {
-            let size = world.maze.size;
+    function printMaze() {
+        let size = world.maze.size;
+    
+        function printSep() {
+            println("-".repeat(size[1] * 10 + 1));
+        }
+    
+        for (let x = 0; x < size[0]; x++) {
+            printSep();
+        
+            let lines = ["", "", "", "", "", ""];
+        
+            for (let y = 0; y < size[1]; y++) {
+                let tile = world.maze.get(x, y);
+                let entity = world.get(x, y);
+                let visible = world.isVisible(x, y)
+                let visited = world.isVisited(x, y);
             
-            function printSep() {
-                println("-".repeat(size[1] * 10 + 1));
-            }
+                let tileName;
+                let tileColor;
+                if (tile == mazes.types.stone) {
+                    tileName = "  Stone  ";
+                    tileColor = colors.gray;
+                } else if (tile == mazes.types.wall) {
+                    tileName = "   Wall  ";
+                    tileColor = function (str) {
+                        return colors.black(colors.italic(colors.bold(str)));
+                    };
+                }
             
-            for (let x = 0; x < size[0]; x++) {
-                printSep();
-                
-                let lines = ["", "", "", "", "", ""];
-                
-                for (let y = 0; y < size[1]; y++) {
-                    let tile = world.maze.get(x, y);
-                    let entity = world.get(x, y);
-                    
-                    let tileName;
-                    let tileColor;
-                    if (tile == mazes.types.stone) {
-                        tileName = "  Stone  ";
-                        tileColor = colors.gray;
-                    } else if (tile == mazes.types.wall) {
-                        tileName = "   Wall  ";
-                        tileColor = function (str) {
-                            return colors.black(colors.italic(colors.bold(str)));
+                lines[0] += "|";
+                lines[1] += "|";
+                lines[2] += "|";
+                lines[3] += "|";
+                lines[4] += "|";
+                if (visited) {
+                    lines[5] += "|" + tileColor(tileName);
+                } else {
+                    lines[5] += "|         ";
+                }
+            
+                if (visited && tile == mazes.types.wall) {
+                    let fill = colors.black(colors.bold(" ####### "));
+                    lines[0] += fill;
+                    lines[1] += fill;
+                    lines[2] += fill;
+                    lines[3] += fill;
+                } else if (entity && visible && visited) {
+                    let entityName;
+                    let entityColor;
+                    if (entity.type === 0) {
+                        entityName = "  Player ";
+                        entityColor = function (str) {
+                            return colors.green(colors.bold(str));
+                        };
+                    } else {
+                        let name = entity.name;
+                        let size = name.length;
+                        if (size > 9) {
+                            entityName = name.substring(0, 8) + ".";
+                        } else {
+                            entityName = " ".repeat((10 - size) >> 1) + name + " ".repeat((9 - size) >> 1);
+                        }
+                        entityColor = function (str) {
+                            return colors.red(colors.italic(str));
                         };
                     }
-                    
-                    lines[0] += "|";
-                    lines[1] += "|";
-                    lines[2] += "|";
-                    lines[3] += "|";
-                    lines[4] += "|";
-                    lines[5] += "|" + tileColor(tileName);
-                    
-                    if (entity) {
-                        let entityName;
-                        let entityColor;
-                        if (entity.type === 0) {
-                            entityName = "  Player ";
-                            entityColor = function (str) {
-                                return colors.green(colors.bold(str));
-                            };
-                        } else {
-                            let name = entity.name;
-                            let size = name.length;
-                            if (size > 9) {
-                                entityName = name.substring(0, 8) + ".";
-                            } else {
-                                entityName = " ".repeat((10 - size) >> 1) + name + " ".repeat((9 - size) >> 1);
-                            }
-                            entityColor = function (str) {
-                                return colors.red(colors.italic(str));
-                            };
-                        }
-                        
-                        lines[0] += entityColor(entityName);
-                        lines[1] += colors.cyan(" H: " + entity.health.toString().padEnd(4) + " ");
-                        
-                        if (entity.type === 0) {
-                            lines[2] += "         ";
-                            lines[3] += "         ";
-                        } else {
-                            lines[2] += colors.magenta(" D: " + entity.damage.toString().padEnd(4) + " ");
-                            lines[3] += colors.blue(" S: " + entity.speed.toString().padEnd(4) + " ");
-                        }
-                    } else {
-                        lines[0] += "         ";
-                        lines[1] += "         ";
+                
+                    lines[0] += entityColor(entityName);
+                    lines[1] += colors.cyan(" H: " + entity.health.toString().padEnd(4) + " ");
+                
+                    if (entity.type === 0) {
                         lines[2] += "         ";
                         lines[3] += "         ";
-                    }
-                    
-                    if (world.maze.end[0] == x && world.maze.end[1] == y) {
-                        lines[4] += colors.yellow(colors.bold("   End   "));
                     } else {
-                        lines[4] += "         ";
+                        lines[2] += colors.magenta(" D: " + entity.damage.toString().padEnd(4) + " ");
+                        lines[3] += colors.blue(" S: " + entity.speed.toString().padEnd(4) + " ");
                     }
+                } else {
+                    lines[0] += "         ";
+                    lines[1] += "         ";
+                    lines[2] += "         ";
+                    lines[3] += "         ";
                 }
-                
-                for (const line of lines) {
-                    println(line + "|");
+            
+                if (visited && world.maze.end[0] == x && world.maze.end[1] == y) {
+                    lines[4] += colors.yellow(colors.bold("   End   "));
+                } else {
+                    lines[4] += "         ";
                 }
             }
-            printSep();
+        
+            for (const line of lines) {
+                println(line + "|");
+            }
+        }
+        printSep();
+    }
+    
+    while (cont.cont) {
+        try {
+            printMaze()
             
             const char = readline.keyIn("", {
                 hideEchoBack: true,
@@ -215,5 +231,9 @@ export async function ingame(world, callback) {
         } catch (err) {
             onErr(err);
         }
+    }
+    
+    if (cont.print) {
+        printMaze()
     }
 }
