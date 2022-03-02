@@ -1,4 +1,5 @@
 import * as enemies from "./enemies.js";
+import * as mazes from "./maze.js";
 
 export const directions = {
     west: 0,
@@ -6,8 +7,6 @@ export const directions = {
     east: 2,
     north: 3,
 };
-
-//world with maze entities player
 
 class World {
     maze;
@@ -43,7 +42,9 @@ class World {
     get(x, y) {
         const line = this.entities[x];
         if (line) {
-            return line[y];
+            let res = line[y];
+            
+            return res ? res : null;
         } else {
             return null;
         }
@@ -59,34 +60,45 @@ class World {
         }
     }
     
-    //movement
-    
     walk(dir) {
         let [x, y] = this.player;
+        let player = this.get(x, y);
+        
+        let moveTo = (newx, newy) => {
+            if (newx < 0 || newy < 0 || newx >= this.maze.size[0] || newy >= this.maze.size[1]) {
+                return false;
+            }
+            
+            let target = this.get(newx, newy);
+            let targetTile = this.maze.get(newx, newy);
+            
+            if (target == null && targetTile !== mazes.types.wall) {
+                this.set(x, y, null);
+                this.set(newx, newy, player);
+                this.player = [newx, newy];
+                
+                return true;
+            } else if (target != null) {
+                target.health -= 24;
+                
+                if (target.health <= 0) {
+                    this.set(newx, newy, null);
+                }
+                
+                return true;
+            } else {
+                return false;
+            }
+        };
+        
         if (dir == directions.west) {
-            if (this.get(x - 1, y) != null && this.get(x - 1, y) == 1) {
-                return true;
-            } else {
-                return false;
-            }
+            return moveTo(x, y - 1);
         } else if (dir == directions.south) {
-            if (this.get(x, y + 1) != null && this.get(x, y + 1) == 1) {
-                return true;
-            } else {
-                return false;
-            }
+            return moveTo(x + 1, y);
         } else if (dir == directions.east) {
-            if (this.get(x + 1, y) != null && this.get(x + 1, y) == 1) {
-                return true;
-            } else {
-                return false;
-            }
+            return moveTo(x, y + 1);
         } else if (dir == directions.north) {
-            if (this.get(x, y - 1) != null && this.get(x, y - 1) == 1) {
-                return true;
-            } else {
-                return false;
-            }
+            return moveTo(x - 1, y);
         }
     }
 }

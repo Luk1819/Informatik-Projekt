@@ -39,13 +39,27 @@ console.log(res);
 
 if (res.start) {
     await cli.ingame(currWorld, function (cmd) {
-        console.log(cmd);
-        
         if (cmd.command == cli.igcommands.exit) {
             println("Exiting!");
             return {
                 cont: false,
             };
+        } else if (cmd.command == cli.igcommands.up) {
+            if (!currWorld.walk(world.directions.north)) {
+                println("Illegal move!")
+            }
+        } else if (cmd.command == cli.igcommands.left) {
+            if (!currWorld.walk(world.directions.west)) {
+                println("Illegal move!")
+            }
+        } else if (cmd.command == cli.igcommands.down) {
+            if (!currWorld.walk(world.directions.south)) {
+                println("Illegal move!")
+            }
+        } else if (cmd.command == cli.igcommands.right) {
+            if (!currWorld.walk(world.directions.east)) {
+                println("Illegal move!")
+            }
         }
         
         return {

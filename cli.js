@@ -121,7 +121,7 @@ export async function ingame(world, callback) {
                             let name = entity.name;
                             let size = name.length;
                             if (size > 9) {
-                                entityName = name.substring(0, 7) + ".";
+                                entityName = name.substring(0, 8) + ".";
                             } else {
                                 entityName = " ".repeat((10 - size) >> 1) + name + " ".repeat((9 - size) >> 1);
                             }
