@@ -7,49 +7,49 @@ import * as enemies from "./enemies.js";
 cli.start();
 
 await enemies.discover();
-var currMaze = maze.load("./mazes/maze1.json");
-var currWorld = world.create(currMaze);
+let currMaze = maze.load("./mazes/maze1.json");
+let currWorld = world.create(currMaze);
 
-var res = await cli.menu(function (cmd) {
-  if (cmd.command == cli.commands.start) {
-    println("Starting!");
+const res = await cli.menu(function (cmd) {
+    if (cmd.command == cli.commands.start) {
+        println("Starting!");
+        return {
+            cont: false,
+            start: true,
+        };
+    } else if (cmd.command == cli.commands.exit) {
+        println("Exiting!");
+        return {
+            cont: false,
+            start: false,
+        };
+    } else if (cmd.command == cli.commands.load) {
+        println(`Loading file ${cmd.file}...`);
+        currMaze = maze.load(`./mazes/${cmd.file}.json`);
+        currWorld = world.create(currMaze);
+        println(`Loaded file ${cmd.file}!`);
+    }
+    
     return {
-      cont: false,
-      start: true,
+        cont: true,
     };
-  } else if (cmd.command == cli.commands.exit) {
-    println("Exiting!");
-    return {
-      cont: false,
-      start: false,
-    };
-  } else if (cmd.command == cli.commands.load) {
-    println(`Loading file ${cmd.file}...`);
-    currMaze = maze.load(`./mazes/${cmd.file}.json`);
-    currWorld = world.create(currMaze);
-    println(`Loaded file ${cmd.file}!`);
-  }
-
-  return {
-    cont: true,
-  };
 });
 
-console.log(res)
+console.log(res);
 
 if (res.start) {
-  await cli.ingame(function (cmd) {
-    console.log(cmd)
-
-    if (cmd.command == cli.igcommands.exit) {
-      println("Exiting!");
-      return {
-        cont: false,
-      };
-    }
-
-    return {
-      cont: true,
-    };
-  });
+    await cli.ingame(currWorld, function (cmd) {
+        console.log(cmd);
+        
+        if (cmd.command == cli.igcommands.exit) {
+            println("Exiting!");
+            return {
+                cont: false,
+            };
+        }
+        
+        return {
+            cont: true,
+        };
+    });
 }
