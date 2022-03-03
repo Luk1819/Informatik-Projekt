@@ -28,7 +28,7 @@ class Maze {
     }
     
     isWall(x, y) {
-        return x >= 0 && x < this.size[0] && y >= 0 && y <= this.size[1] && this.get(x, y) != types.wall;
+        return x >= 0 && x < this.size[0] && y >= 0 && y <= this.size[1] && this.get(x, y) == types.wall;
     }
 }
 

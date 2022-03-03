@@ -81,34 +81,26 @@ class World {
         let [px, py] = this.player;
         
         if (x == px && y == py) {
-            //println(`${px},${py} to ${x},${y}: Equal`)
             return true;
         } else if (Math.abs(x - px) > 2 || Math.abs(y - py) > 2) {
-            //println(`${px},${py} to ${x},${y}: Too far`)
             return false;
         } else if (Math.abs(x - px) < 2 && Math.abs(y - py) < 2) {
-            //println(`${px},${py} to ${x},${y}: Directly besides`)
             return true;
         } else if (Math.abs(x - px) == 2) {
             if (Math.abs(y - py) < 1) {
-                //println(`${px},${py} to ${x},${y}: 2 left/right`)
-                return this.maze.isWall((x + px) / 2, y);
+                return !this.maze.isWall((x + px) / 2, y);
             } else if (Math.abs(y - py) == 1) {
-                //println(`${px},${py} to ${x},${y}: 2 left/right, 1 up/down`)
-                return this.maze.isWall((x + px) / 2, py) && (this.maze.isWall((x + px) / 2, py) || this.maze.isWall(x, py));
+                return !this.maze.isWall((x + px) / 2, py) && (!this.maze.isWall((x + px) / 2, y) || !this.maze.isWall(x, py));
             } else { // Math.abs(y - py) == 2
-                //println(`${px},${py} to ${x},${y}: 2 left/right, 2 up/down`)
-                return this.maze.isWall((x + px) / 2, (y + py) / 2);
+                return !this.maze.isWall((x + px) / 2, (y + py) / 2);
             }
         } else { // Math.abs(y - py) == 2
             if (Math.abs(x - px) < 1) {
-                //println(`${px},${py} to ${x},${y}: 2 up/down`)
-                return this.maze.isWall(x, (y + py) / 2);
+                return !this.maze.isWall(x, (y + py) / 2);
             } else if (Math.abs(x - px) == 1) {
-                //println(`${px},${py} to ${x},${y}: 2 up/down, 1 left/right`)
-                return this.maze.isWall(px, (y + py) / 2) && (this.maze.isWall(px, (y + py) / 2) || this.maze.isWall(px, y));
+                return !this.maze.isWall(px, (y + py) / 2) && (!this.maze.isWall(x, (y + py) / 2) || !this.maze.isWall(px, y));
             } else { // Math.abs(x - px) == 2 (Should never happen, as it fits the case above
-                throw "Illegal state: This should never happen!"
+                throw "Illegal state: This should never happen!";
             }
         }
     }
@@ -134,6 +126,72 @@ class World {
         }
     }
     
+    enemyMove() {
+        let es = [];
+        
+        for (let x = 0; x < this.maze.size[0]; x++) {
+            for (let y = 0; y < this.maze.size[1]; y++) {
+                let enemy = this.get(x, y);
+                
+                if (enemy && enemy.type !== 0 && this.isVisible(x, y)) {
+                    es.push({
+                        e: enemy,
+                        loc: [x, y]
+                    });
+                }
+            }
+        }
+        
+        for (const target of es) {
+            let enemy = target.e;
+            let [x, y] = target.loc;
+            
+            console.dir(enemy, {
+                depth: 10
+            });
+            
+            for (let i = 0; i < enemy.speed; i++) {
+                let [px, py] = this.player;
+                let player = this.get(px, py);
+                
+                let newx = null;
+                let newy = null;
+                
+                if (Math.abs(x - px) < 2 && Math.abs(y - py) < 2) {
+                    player.health -= enemy.damage;
+                } else if (Math.abs(x - px) == 2) {
+                    if (Math.abs(y - py) < 1) {
+                        newx = (x + px) / 2;
+                        newy = y;
+                    } else if (Math.abs(y - py) == 1) {
+                        newx = (x + px) / 2;
+                        newy = py;
+                    } else { // Math.abs(y - py) == 2
+                        newx = (x + px) / 2;
+                        newy = (y + py) / 2;
+                    }
+                } else { // Math.abs(y - py) == 2
+                    if (Math.abs(x - px) < 1) {
+                        newx = x;
+                        newy = (y + py) / 2;
+                    } else if (Math.abs(x - px) == 1) {
+                        newx = px;
+                        newy = (y + py) / 2;
+                    } else { // Math.abs(x - px) == 2 (Should never happen, as it fits the case above
+                        throw "Illegal state: This should never happen!";
+                    }
+                }
+                
+                if (newx !== null && newy !== null) {
+                    this.set(x, y, null);
+                    this.set(newx, newy, enemy);
+                    x = newx;
+                    y = newy;
+                }
+            }
+        }
+    }
+    
     walk(dir) {
         let [x, y] = this.player;
         let player = this.get(x, y);
@@ -146,7 +204,7 @@ class World {
             let target = this.get(newx, newy);
             let targetTile = this.maze.get(newx, newy);
             
-            if (target == null && targetTile !== mazes.types.wall) {
+            if (target === null && targetTile !== mazes.types.wall) {
                 this.set(x, y, null);
                 this.set(newx, newy, player);
                 this.player = [newx, newy];
@@ -154,7 +212,7 @@ class World {
                 this.visit();
                 
                 return true;
-            } else if (target != null) {
+            } else if (target !== null) {
                 target.health -= 24;
                 
                 if (target.health <= 0) {
@@ -179,7 +237,11 @@ class World {
     }
     
     isFinished() {
-        return this.player[0] == this.maze.end[0] && this.player[1] == this.maze.end[1];
+        return (this.player[0] == this.maze.end[0] && this.player[1] == this.maze.end[1]) || !this.survived();
+    }
+    
+    survived() {
+        return this.get(this.player[0], this.player[1]).health > 0;
     }
 }
 

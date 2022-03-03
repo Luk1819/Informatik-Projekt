@@ -67,30 +67,31 @@ export const igcommands = {
     exit: 4,
 };
 
-export async function ingame(world, callback) {
+export async function ingame(world, commandCallback, calcTurnCallback) {
     let cont = {
         cont: true,
+        didMove: false
     };
     let special = false;
     
     function printMaze() {
         let size = world.maze.size;
-    
+        
         function printSep() {
             println("-".repeat(size[1] * 10 + 1));
         }
-    
+        
         for (let x = 0; x < size[0]; x++) {
             printSep();
-        
+            
             let lines = ["", "", "", "", "", ""];
-        
+            
             for (let y = 0; y < size[1]; y++) {
                 let tile = world.maze.get(x, y);
                 let entity = world.get(x, y);
-                let visible = world.isVisible(x, y)
+                let visible = world.isVisible(x, y);
                 let visited = world.isVisited(x, y);
-            
+                
                 let tileName;
                 let tileColor;
                 if (tile == mazes.types.stone) {
@@ -102,7 +103,7 @@ export async function ingame(world, callback) {
                         return colors.black(colors.italic(colors.bold(str)));
                     };
                 }
-            
+                
                 lines[0] += "|";
                 lines[1] += "|";
                 lines[2] += "|";
@@ -113,7 +114,7 @@ export async function ingame(world, callback) {
                 } else {
                     lines[5] += "|         ";
                 }
-            
+                
                 if (visited && tile == mazes.types.wall) {
                     let fill = colors.black(colors.bold(" ####### "));
                     lines[0] += fill;
@@ -140,10 +141,10 @@ export async function ingame(world, callback) {
                             return colors.red(colors.italic(str));
                         };
                     }
-                
+                    
                     lines[0] += entityColor(entityName);
                     lines[1] += colors.cyan(" H: " + entity.health.toString().padEnd(4) + " ");
-                
+                    
                     if (entity.type === 0) {
                         lines[2] += "         ";
                         lines[3] += "         ";
@@ -157,14 +158,14 @@ export async function ingame(world, callback) {
                     lines[2] += "         ";
                     lines[3] += "         ";
                 }
-            
+                
                 if (visited && world.maze.end[0] == x && world.maze.end[1] == y) {
                     lines[4] += colors.yellow(colors.bold("   End   "));
                 } else {
                     lines[4] += "         ";
                 }
             }
-        
+            
             for (const line of lines) {
                 println(line + "|");
             }
@@ -174,7 +175,7 @@ export async function ingame(world, callback) {
     
     while (cont.cont) {
         try {
-            printMaze()
+            printMaze();
             
             const char = readline.keyIn("", {
                 hideEchoBack: true,
@@ -183,19 +184,19 @@ export async function ingame(world, callback) {
             
             if (special) {
                 if (char == "A") {
-                    cont = callback({
+                    cont = commandCallback({
                         command: igcommands.up,
                     });
                 } else if (char == "B") {
-                    cont = callback({
+                    cont = commandCallback({
                         command: igcommands.down,
                     });
                 } else if (char == "C") {
-                    cont = callback({
+                    cont = commandCallback({
                         command: igcommands.right,
                     });
                 } else if (char == "D") {
-                    cont = callback({
+                    cont = commandCallback({
                         command: igcommands.left,
                     });
                 }
@@ -207,26 +208,30 @@ export async function ingame(world, callback) {
                 } else if (char == "[") {
                     special = true;
                 } else if (char == "w") {
-                    cont = callback({
+                    cont = commandCallback({
                         command: igcommands.up,
                     });
                 } else if (char == "s") {
-                    cont = callback({
+                    cont = commandCallback({
                         command: igcommands.down,
                     });
                 } else if (char == "d") {
-                    cont = callback({
+                    cont = commandCallback({
                         command: igcommands.right,
                     });
                 } else if (char == "a") {
-                    cont = callback({
+                    cont = commandCallback({
                         command: igcommands.left,
                     });
                 } else if (char == "e") {
-                    cont = callback({
+                    cont = commandCallback({
                         command: igcommands.exit,
                     });
                 }
+            }
+            
+            if (cont.didMove) {
+                cont = calcTurnCallback();
             }
         } catch (err) {
             onErr(err);
@@ -234,6 +239,6 @@ export async function ingame(world, callback) {
     }
     
     if (cont.print) {
-        printMaze()
+        printMaze();
     }
 }
