@@ -22,7 +22,7 @@ class World {
         this.player = [x, y];
         this.set(x, y, {
             type: 0,
-            health: maze.player.health
+            health: maze.player.hp
         });
         
         this.visit();
