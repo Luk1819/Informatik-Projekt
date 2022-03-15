@@ -65,6 +65,7 @@ export const igcommands = {
     down: 2,
     right: 3,
     exit: 4,
+    restart: 5
 };
 
 export async function ingame(world, commandCallback, calcTurnCallback) {
@@ -224,11 +225,15 @@ export async function ingame(world, commandCallback, calcTurnCallback) {
                     cont = commandCallback({
                         command: igcommands.exit,
                     });
+                } else if (char == "r") {
+                    cont = commandCallback({
+                        command: igcommands.restart,
+                    });
                 }
             }
             
             if (cont.didMove) {
-                cont = calcTurnCallback();
+                cont = cont.merge(calcTurnCallback());
             }
         } catch (err) {
             onErr(err);
@@ -238,4 +243,9 @@ export async function ingame(world, commandCallback, calcTurnCallback) {
     if (cont.print) {
         printMaze();
     }
+    
+    delete cont.cont;
+    delete cont.didMove;
+    delete cont.print;
+    return cont;
 }

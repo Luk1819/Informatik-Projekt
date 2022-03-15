@@ -36,16 +36,30 @@ const res = await cli.menu(function (cmd) {
     };
 });
 
-if (res.start) {
-    await cli.ingame(currWorld, function (cmd) {
+let cont = {
+    restart: res.start,
+};
+
+while (cont.restart) {
+    cont.restart = false;
+
+    cont = await cli.ingame(currWorld, function (cmd) {
         let moved = false;
         
         if (cmd.command == cli.igcommands.exit) {
             println("Exiting!");
             return {
                 cont: false,
+                exited: true
             };
-        } else if (cmd.command == cli.igcommands.up) {
+        } else if (cmd.command == cli.igcommands.restart) {
+            println("Restarting!");
+            currWorld = world.create(currMaze);
+            return {
+                cont: false,
+                restart: true
+            }
+        }  else if (cmd.command == cli.igcommands.up) {
             if (!currWorld.walk(world.directions.north)) {
                 println("Illegal move!");
             } else {
@@ -104,12 +118,14 @@ function printSep(size) {
     println();
 }
 
-if (!currWorld.survived()) {
-    printSep(14)
-    println(colors.red(colors.italic("YOU'RE DEAD...")));
-    printSep(14)
-} else {
-    printSep(8)
-    println(colors.green(colors.bold("YOU WON!")));
-    printSep(8)
+if (!cont.exited) {
+    if (!currWorld.survived()) {
+        printSep(14)
+        println(colors.red(colors.italic("YOU'RE DEAD...")));
+        printSep(14)
+    } else {
+        printSep(8)
+        println(colors.green(colors.bold("YOU WON!")));
+        printSep(8)
+    }
 }
