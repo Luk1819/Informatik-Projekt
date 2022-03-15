@@ -55,7 +55,7 @@ export function read(data) {
     const start = json.start;
     const end = json.end;
     
-    return new Maze(json.maze, start, end, json.enemies, [json.maze[0].length, json.maze.length], json.player);
+    return new Maze(json.maze, start, end, json.enemies, [json.maze.length, json.maze[0].length], json.player);
 }
 
 export function load(path1) {
