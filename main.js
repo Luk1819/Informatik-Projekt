@@ -72,7 +72,6 @@ if (res.start) {
         }
         
         if (currWorld.isFinished()) {
-            println("Finished!");
             return {
                 cont: false,
                 print: true

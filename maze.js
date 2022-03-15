@@ -2,21 +2,21 @@ import * as fs from "fs";
 import * as path from "path";
 import { __dirname } from "./utils.js";
 
-//maze with array start end enemies
-
 class Maze {
     array;
     start;
     end;
     enemies;
     size;
+    player;
     
-    constructor(array, start, end, enemies, size) {
+    constructor(array, start, end, enemies, size, player) {
         this.array = array;
         this.start = start;
         this.end = end;
         this.enemies = enemies;
         this.size = size;
+        this.player = player;
     }
     
     get(x, y) {
@@ -46,7 +46,7 @@ export function create(x, y) {
         }
         array.push(layer);
     }
-    return new Maze(array, [0, 0], [x - 1, y - 1], [x, y]);
+    return new Maze(array, [0, 0], [x - 1, y - 1], [x, y]), { "hp": 100, "damage": 24 };
 }
 
 export function read(data) {
@@ -55,7 +55,7 @@ export function read(data) {
     const start = json.start;
     const end = json.end;
     
-    return new Maze(json.maze, start, end, json.enemies, [json.maze[0].length, json.maze.length]);
+    return new Maze(json.maze, start, end, json.enemies, [json.maze[0].length, json.maze.length], json.player);
 }
 
 export function load(path1) {

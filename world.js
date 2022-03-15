@@ -22,7 +22,7 @@ class World {
         this.player = [x, y];
         this.set(x, y, {
             type: 0,
-            health: 100
+            health: maze.player.health
         });
         
         this.visit();
@@ -145,10 +145,6 @@ class World {
             let enemy = target.e;
             let [x, y] = target.loc;
             
-            console.dir(enemy, {
-                depth: 10
-            });
-            
             for (let i = 0; i < enemy.speed; i++) {
                 let [px, py] = this.player;
                 let player = this.get(px, py);
@@ -212,7 +208,7 @@ class World {
                 
                 return true;
             } else if (target !== null) {
-                target.health -= 24;
+                target.health -= this.maze.player.damage;
                 
                 if (target.health <= 0) {
                     this.set(newx, newy, null);
