@@ -84,7 +84,7 @@ export async function ingame(world, commandCallback, calcTurnCallback) {
         for (let x = 0; x < size[0]; x++) {
             printSep();
             
-            let lines = ["", "", "", "", "", ""];
+            let lines = ["", "", "", "", ""];
             
             for (let y = 0; y < size[1]; y++) {
                 let tile = world.maze.get(x, y);
@@ -108,9 +108,12 @@ export async function ingame(world, commandCallback, calcTurnCallback) {
                 lines[1] += "|";
                 lines[2] += "|";
                 lines[3] += "|";
-                lines[4] += "|";
                 if (visited) {
-                    lines[5] += "|" + tileColor(tileName);
+                    if (world.maze.end[0] == x && world.maze.end[1] == y) {
+                        lines[5] += "|" + colors.yellow(tileName);
+                    } else {
+                        lines[5] += "|" + tileColor(tileName);
+                    }
                 } else {
                     lines[5] += "|         ";
                 }
@@ -157,12 +160,6 @@ export async function ingame(world, commandCallback, calcTurnCallback) {
                     lines[1] += "         ";
                     lines[2] += "         ";
                     lines[3] += "         ";
-                }
-                
-                if (visited && world.maze.end[0] == x && world.maze.end[1] == y) {
-                    lines[4] += colors.yellow(colors.bold("   End   "));
-                } else {
-                    lines[4] += "         ";
                 }
             }
             
