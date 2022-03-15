@@ -110,12 +110,12 @@ export async function ingame(world, commandCallback, calcTurnCallback) {
                 lines[3] += "|";
                 if (visited) {
                     if (world.maze.end[0] == x && world.maze.end[1] == y) {
-                        lines[5] += "|" + colors.yellow(tileName);
+                        lines[4] += "|" + colors.yellow(colors.bold(tileName));
                     } else {
-                        lines[5] += "|" + tileColor(tileName);
+                        lines[4] += "|" + tileColor(tileName);
                     }
                 } else {
-                    lines[5] += "|         ";
+                    lines[4] += "|         ";
                 }
                 
                 if (visited && tile == mazes.types.wall) {
