@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "Mazes",
   "main": "main.js",
-  "author": "Noah / Andrej / Lukas",
+  "authors": ["Noah", "Andrej", "Lukas"],
   "homepage": "https://baldu.at/geheim-projekt/",
   "repository": "https://github.com/Luk1819/Informatik-Projekt",
   "bugs": "https://github.com/Luk1819/Informatik-Projekt/issues",
