@@ -1,4 +1,4 @@
-import { println, rotate } from "./utils.js";
+import { println, rotate, clear } from "./utils.js";
 import * as mazes from "./maze.js";
 import colors from "@colors/colors/safe.js";
 import * as readline from "readline-sync";
@@ -6,9 +6,8 @@ import * as worlds from "./world.js";
 
 export const commands = {
     start: 0,
-    load: 1,
-    exit: 2,
-    select: 3,
+    exit: 1,
+    select: 2,
 };
 
 export function start() {
@@ -47,12 +46,6 @@ export function menu(callback) {
                 println(colors.cyan("  exit        : exit the game"));
                 println(colors.cyan("  help        : print this help"));
                 println(colors.green("----- HELP ------"));
-            } else if (cmd == "load") {
-                println("This command is deprecated. Please use 'select' in the future!")
-                cont = callback({
-                    command: commands.load,
-                    file: args[1],
-                });
             } else if (cmd == "select") {
                 cont = callback({
                     command: commands.select,
@@ -69,54 +62,41 @@ export function menu(callback) {
     return cont;
 }
 
-export function selection(levels) {
+export function selection(length, printer) {
     let cont = {
         index: 0,
         selected: false,
+        special: false,
     };
+    
+    clear.reset()
 
     while (!cont.selected) {
         try {
-            for (let idx in levels) {
-                let entry = levels[idx];
-
-                let line = "";
-
-                if (idx == cont.index) {
-                    line += " >> ";
-                } else {
-                    line += "    ";
-                }
-
-                if (entry.done) {
-                    line += colors.green(entry.name);
-                } else if (entry.available) {
-                    line += colors.blue(entry.name);
-                } else {
-                    line += colors.gray(entry.name);
-                }
-            }
+            printer(cont.index)
             
             const char = readline.keyIn("", {
                 hideEchoBack: true,
                 mask: "",
             });
             
-            if (special) {
+            if (cont.special) {
                 if (char == "A") {
-                    cont.index = rotate(index - 1, 0, levels.size - 1);
+                    cont.index = rotate(cont.index - 1, 0, length - 1);
                 } else if (char == "B") {
-                    cont.index = rotate(index + 1, 0, levels.size - 1);
+                    cont.index = rotate(cont.index + 1, 0, length - 1);
                 }
                 
-                special = false;
+                cont.special = false;
             } else {
                 if (char == "[") {
-                    special = true;
-                } else if (char == "\n") {
+                    cont.special = true;
+                } else if (char == " ") {
                     cont.selected = true;
                 }
             }
+    
+            clear.exec()
         } catch (err) {
             onErr(err);
         }
@@ -204,7 +184,7 @@ export function ingame(world, commandCallback, calcTurnCallback) {
                         entityName = "   Item  ";
                         entityColor = colors.cyan;
                     } else if (entity.type == worlds.entityTypes.enemy) {
-                        let name = entity.name;
+                        let name = entity.props.name;
                         let size = name.length;
                         if (size > 9) {
                             entityName = name.substring(0, 8) + ".";

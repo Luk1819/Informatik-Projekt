@@ -1,5 +1,5 @@
 import * as cli from "./cli.js";
-import { println } from "./utils.js";
+import { println, storage, containsAll } from "./utils.js";
 import * as maze from "./maze.js";
 import * as world from "./world.js";
 import * as enemies from "./enemies.js";
@@ -12,12 +12,15 @@ await loot.discover();
 await enemies.discover();
 await maze.discover();
 
-let currMaze = maze.load("./mazes/maze1.json");
+let mazeId = "tutorial_move";
+let currMaze = maze.mazes[mazeId];
 let currWorld = world.create(currMaze);
 
 let res = {
     start: true,
-}
+};
+
+storage.load();
 
 while (res.start) {
     res = cli.menu(function (cmd) {
@@ -33,25 +36,108 @@ while (res.start) {
                 cont: false,
                 start: false,
             };
-        } else if (cmd.command == cli.commands.load) {
-            println(`Loading file ${cmd.file}...`);
-            currMaze = maze.load(`./mazes/${cmd.file}.json`);
-            currWorld = world.create(currMaze);
-            println(`Loaded file ${cmd.file}!`);
         } else if (cmd.command == cli.commands.select) {
-            println(cli.selection([
-                {
-                    name: "level 1",
-                    done: true
-                }, 
-                {
-                    name: "level 2",
-                    available: true
-                },
-                {
-                    name: "level 3"
+            const completed = storage.get().completed;
+            let levels = [];
+            let tutorials = [];
+            
+            let available = {
+                levels: 0,
+                tutorials: 0,
+            };
+            
+            for (let id in maze.mazes) {
+                let level = maze.mazes[id];
+                
+                let arr = levels;
+                let av = "levels";
+                if (level.data.tutorial) {
+                    arr = tutorials;
+                    av = "tutorials";
                 }
-            ]))
+                
+                if (completed.includes(id)) {
+                    arr.push({
+                        name: level.data.name,
+                        done: true,
+                        available: true,
+                        id,
+                    });
+                    available[av] += 1;
+                } else if (containsAll(level.data.dependencies, completed)) {
+                    arr.push({
+                        name: level.data.name,
+                        available: true,
+                        id,
+                    });
+                    available[av] += 1;
+                } else {
+                    arr.push({
+                        name: level.data.name,
+                        id,
+                    });
+                }
+            }
+            
+            const tutorialCount = tutorials.length;
+            const levelCount = levels.length;
+            
+            let chosen = cli.selection(available.tutorials + available.levels, function (index) {
+                let idx = 0;
+                
+                function printArray(array) {
+                    for (let entry of array) {
+                        let line = "";
+                        
+                        if (entry.available) {
+                            if (idx == index) {
+                                line += " >> ";
+                            } else {
+                                line += "    ";
+                            }
+                            idx += 1;
+                        } else {
+                            line += "    ";
+                        }
+                        
+                        if (entry.done) {
+                            line += colors.green(entry.name);
+                        } else if (entry.available) {
+                            line += colors.blue(entry.name);
+                        } else {
+                            line += colors.gray(entry.name);
+                        }
+                        
+                        println(line);
+                    }
+                }
+                
+                println("Tutorials:");
+                printArray(tutorials);
+                println("Levels:");
+                printArray(levels);
+            });
+            
+            let entry;
+            let idx = 0;
+            for (let index = 0; index < tutorialCount + levelCount; index++) {
+                if (index < tutorialCount) {
+                    entry = tutorials[index];
+                } else {
+                    entry = levels[index - tutorialCount];
+                }
+                if (entry.available) {
+                    if (idx == chosen) {
+                        break
+                    }
+                    idx += 1;
+                }
+            }
+            
+            mazeId = entry.id;
+            currMaze = maze.mazes[entry.id];
+            currWorld = world.create(currMaze);
+            println(`Loaded maze ${entry.name}!`);
         }
         
         return {
@@ -65,7 +151,7 @@ while (res.start) {
     
     while (cont.restart) {
         cont.restart = false;
-    
+        
         cont = cli.ingame(currWorld, function (cmd) {
             let moved = false;
             
@@ -81,8 +167,8 @@ while (res.start) {
                 return {
                     cont: false,
                     restart: true
-                }
-            }  else if (cmd.command == cli.igcommands.up) {
+                };
+            } else if (cmd.command == cli.igcommands.up) {
                 if (!currWorld.walk(world.directions.north)) {
                     println("Illegal move!");
                 } else {
@@ -141,17 +227,21 @@ while (res.start) {
         println();
     }
     
-    if (!cont.exited) {
+    if (res.start && !cont.exited) {
         if (!currWorld.survived()) {
-            printSep(14)
+            printSep(14);
             println(colors.red(colors.italic("YOU'RE DEAD...")));
-            printSep(14)
+            printSep(14);
         } else {
-            printSep(8)
+            printSep(8);
             println(colors.green(colors.bold("YOU WON!")));
-            printSep(8)
+            printSep(8);
+            
+            storage.get().completed.push(mazeId);
         }
     }
 }
 
-println("Terminating...")
+storage.save();
+
+println("Terminating...");

@@ -11,13 +11,16 @@ class Maze {
     size;
     player;
     
-    constructor(array, start, end, enemies, size, player) {
+    data;
+    
+    constructor(array, start, end, enemies, size, player, data={name: "", dependencies: [], tutorial: false}) {
         this.array = array;
         this.start = start;
         this.end = end;
         this.enemies = enemies;
         this.size = size;
         this.player = player;
+        this.data = data;
     }
     
     get(x, y) {
@@ -47,7 +50,7 @@ export function create(x, y) {
         }
         array.push(layer);
     }
-    return new Maze(array, [0, 0], [x - 1, y - 1], [x, y]), { hp: 100, damage: 24 };
+    return new Maze(array, [0, 0], [x - 1, y - 1], [x, y], { hp: 100, damage: 24 });
 }
 
 export const mazes = {};
@@ -55,12 +58,12 @@ export const mazes = {};
 export function read(id, data) {
     const json = JSON.parse(data);
 
-    let maze = new Maze(json.maze, json.start, json.end, json.enemies, [json.maze.length, json.maze[0].length], json.player);
+    let maze = new Maze(json.maze, json.start, json.end, json.enemies, [json.maze.length, json.maze[0].length], json.player, {dependencies: json.dependencies, name: json.name, tutorial: json.tutorial || false});
     mazes[id] = maze;
     return maze;
 }
 
-export async function load(path1) {
+export function load(path1) {
     const data = fs.readFileSync(path.join(__dirname, path1), {encoding: "utf8"});
     const id = /mazes\/(.*)\.json/.exec(path1)[1]
     return read(id, data);

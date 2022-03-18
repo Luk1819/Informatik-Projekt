@@ -9,7 +9,7 @@ export const directions = {
     north: 3,
 };
 
-const entityTypes = {
+export const entityTypes = {
     player: 0,
     enemy: 1,
     item: 2,
@@ -65,12 +65,16 @@ class World {
         if (!id) {
             return null;
         }
-
+        
         let item = loot.tables[id].get();
-        return {
-            type: entityTypes.item,
-            props: item,
-        };
+        if (item) {
+            return {
+                type: entityTypes.item,
+                props: item,
+            };
+        } else {
+            return null;
+        }
     }
 
     
@@ -130,7 +134,7 @@ class World {
             } else if (Math.abs(x - px) == 1) {
                 return !this.maze.isWall(px, (y + py) / 2) && (!this.maze.isWall(x, (y + py) / 2) || !this.maze.isWall(px, y));
             } else { // Math.abs(x - px) == 2 (Should never happen, as it fits the case above
-                throw "Illegal state: This should never happen!";
+                throw Error("Illegal state: This should never happen!");
             }
         }
     }
@@ -165,7 +169,7 @@ class World {
                 
                 if (enemy && enemy.type == entityTypes.enemy && this.isVisible(x, y)) {
                     es.push({
-                        e: enemy,
+                        enemy,
                         loc: [x, y]
                     });
                 }
@@ -173,12 +177,12 @@ class World {
         }
         
         for (const target of es) {
-            let enemy = target.e;
+            let enemy = target.enemy;
             let [x, y] = target.loc;
             
             for (let i = 0; i < enemy.props.speed; i++) {
                 let [px, py] = this.player;
-                let player = this.get(px, py).props;
+                let player = this.get(px, py);
                 
                 let newx = null;
                 let newy = null;
@@ -204,11 +208,11 @@ class World {
                         newx = px;
                         newy = (y + py) / 2;
                     } else { // Math.abs(x - px) == 2 (Should never happen, as it fits the case above
-                        throw "Illegal state: This should never happen!";
+                        throw Error("Illegal state: This should never happen!");
                     }
                 }
                 
-                if (newx !== null && newy !== null && this.get(newx, newy) !== null) {
+                if (newx !== null && newy !== null && this.get(newx, newy) === null) {
                     this.set(x, y, null);
                     this.set(newx, newy, enemy);
                     x = newx;
@@ -230,7 +234,7 @@ class World {
             let target = this.get(newx, newy);
             let targetTile = this.maze.get(newx, newy);
             
-            if ((target == null || target.type == entityTypes.item) && targetTile != mazes.types.wall) {
+            if ((target === null || target.type == entityTypes.item) && targetTile != mazes.types.wall) {
                 this.set(x, y, null);
                 this.set(newx, newy, player);
                 this.player = [newx, newy];
@@ -264,6 +268,8 @@ class World {
             return moveTo(x, y + 1);
         } else if (dir == directions.north) {
             return moveTo(x - 1, y);
+        } else {
+            throw Error("Illegal argument: '" + dir + "' is not a valid direction!");
         }
     }
     

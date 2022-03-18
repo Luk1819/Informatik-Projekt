@@ -51,7 +51,7 @@ export function read(data) {
     return create(json.type, json.health, json.damage, json.speed, json.name, json.loot || null);
 }
 
-export async function load(path1) {
+export function load(path1) {
     const data = fs.readFileSync(path.join(__dirname, path1), {encoding: "utf8"});
     return read(data);
 }

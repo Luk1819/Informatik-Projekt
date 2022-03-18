@@ -35,10 +35,10 @@ export function create(id, content) {
 
 export function read(id, data) {
     const json = JSON.parse(data);
-    return create(id, data.content);
+    return create(id, json.content);
 }
 
-export async function load(path1) {
+export function load(path1) {
     const data = fs.readFileSync(path.join(__dirname, path1), {encoding: "utf8"});
     const id = /loot\/(.*)\.json/.exec(path1)[1]
     return read(id, data);
