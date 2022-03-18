@@ -10,7 +10,7 @@ cli.start();
 
 await loot.discover();
 await enemies.discover();
-await mazes.discover();
+await maze.discover();
 
 let currMaze = maze.load("./mazes/maze1.json");
 let currWorld = world.create(currMaze);
@@ -20,7 +20,7 @@ let res = {
 }
 
 while (res.start) {
-    res = await cli.menu(function (cmd) {
+    res = cli.menu(function (cmd) {
         if (cmd.command == cli.commands.start) {
             println("Starting!");
             return {
@@ -38,6 +38,20 @@ while (res.start) {
             currMaze = maze.load(`./mazes/${cmd.file}.json`);
             currWorld = world.create(currMaze);
             println(`Loaded file ${cmd.file}!`);
+        } else if (cmd.command == cli.commands.select) {
+            println(cli.selection([
+                {
+                    name: "level 1",
+                    done: true
+                }, 
+                {
+                    name: "level 2",
+                    available: true
+                },
+                {
+                    name: "level 3"
+                }
+            ]))
         }
         
         return {
@@ -52,7 +66,7 @@ while (res.start) {
     while (cont.restart) {
         cont.restart = false;
     
-        cont = await cli.ingame(currWorld, function (cmd) {
+        cont = cli.ingame(currWorld, function (cmd) {
             let moved = false;
             
             if (cmd.command == cli.igcommands.exit) {

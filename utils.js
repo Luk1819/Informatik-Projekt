@@ -17,3 +17,13 @@ export function println(value = "") {
 export function lines(str) {
     return str.split(/[\r\n]+/);
 }
+
+export function rotate(value, min, max) {
+    if (value < min) {
+        return rotate(max + (value - min), min, max);
+    } else if (value > max) {
+        return rotate(min + (value - max), min, max);
+    } else {
+        return value;
+    }
+}

@@ -1,4 +1,5 @@
 import * as fs from "fs";
+import { globby } from "globby";
 import * as path from "path";
 import { __dirname } from "./utils.js";
 
@@ -53,11 +54,8 @@ export const mazes = {};
 
 export function read(id, data) {
     const json = JSON.parse(data);
-    
-    const start = json.start;
-    const end = json.end;
 
-    let maze = new Maze(json.maze, start, end, json.enemies, [json.maze.length, json.maze[0].length], json.player);
+    let maze = new Maze(json.maze, json.start, json.end, json.enemies, [json.maze.length, json.maze[0].length], json.player);
     mazes[id] = maze;
     return maze;
 }
@@ -69,7 +67,7 @@ export async function load(path1) {
 }
 
 export async function discover() {
-    const entries = await globby("loot/*.json");
+    const entries = await globby("mazes/*.json");
     for (let file of entries) {
         load(file);
     }

@@ -208,7 +208,7 @@ class World {
                     }
                 }
                 
-                if (newx !== null && newy !== null) {
+                if (newx !== null && newy !== null && this.get(newx, newy) !== null) {
                     this.set(x, y, null);
                     this.set(newx, newy, enemy);
                     x = newx;

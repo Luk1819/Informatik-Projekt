@@ -1,4 +1,4 @@
-import { println } from "./utils.js";
+import { println, rotate } from "./utils.js";
 import * as mazes from "./maze.js";
 import colors from "@colors/colors/safe.js";
 import * as readline from "readline-sync";
@@ -8,6 +8,7 @@ export const commands = {
     start: 0,
     load: 1,
     exit: 2,
+    select: 3,
 };
 
 export function start() {
@@ -18,7 +19,7 @@ function onErr(err) {
     println(`ERROR: ${err}`);
 }
 
-export async function menu(callback) {
+export function menu(callback) {
     let cont = {
         cont: true,
     };
@@ -39,17 +40,25 @@ export async function menu(callback) {
             } else if (cmd == "help") {
                 println(colors.green("----- HELP ------"));
                 println(colors.cyan("--- CONTROLS ---"));
-                println(colors.cyan("  load <file> : load a maze from a file"));
                 println(colors.cyan("  start       : starts the game"));
+                println();
+                println(colors.cyan("  select      : select a level to play"));
                 println();
                 println(colors.cyan("  exit        : exit the game"));
                 println(colors.cyan("  help        : print this help"));
                 println(colors.green("----- HELP ------"));
             } else if (cmd == "load") {
+                println("This command is deprecated. Please use 'select' in the future!")
                 cont = callback({
                     command: commands.load,
                     file: args[1],
                 });
+            } else if (cmd == "select") {
+                cont = callback({
+                    command: commands.select,
+                });
+            } else {
+                println("Unknown command: " + args);
             }
         } catch (err) {
             onErr(err);
@@ -58,6 +67,62 @@ export async function menu(callback) {
     
     delete cont.cont;
     return cont;
+}
+
+export function selection(levels) {
+    let cont = {
+        index: 0,
+        selected: false,
+    };
+
+    while (!cont.selected) {
+        try {
+            for (let idx in levels) {
+                let entry = levels[idx];
+
+                let line = "";
+
+                if (idx == cont.index) {
+                    line += " >> ";
+                } else {
+                    line += "    ";
+                }
+
+                if (entry.done) {
+                    line += colors.green(entry.name);
+                } else if (entry.available) {
+                    line += colors.blue(entry.name);
+                } else {
+                    line += colors.gray(entry.name);
+                }
+            }
+            
+            const char = readline.keyIn("", {
+                hideEchoBack: true,
+                mask: "",
+            });
+            
+            if (special) {
+                if (char == "A") {
+                    cont.index = rotate(index - 1, 0, levels.size - 1);
+                } else if (char == "B") {
+                    cont.index = rotate(index + 1, 0, levels.size - 1);
+                }
+                
+                special = false;
+            } else {
+                if (char == "[") {
+                    special = true;
+                } else if (char == "\n") {
+                    cont.selected = true;
+                }
+            }
+        } catch (err) {
+            onErr(err);
+        }
+    }
+
+    return cont.index;
 }
 
 export const igcommands = {
@@ -69,7 +134,7 @@ export const igcommands = {
     restart: 5
 };
 
-export async function ingame(world, commandCallback, calcTurnCallback) {
+export function ingame(world, commandCallback, calcTurnCallback) {
     let cont = {
         cont: true,
         didMove: false
@@ -110,14 +175,15 @@ export async function ingame(world, commandCallback, calcTurnCallback) {
                 lines[1] += "|";
                 lines[2] += "|";
                 lines[3] += "|";
+                lines[4] += "|";
                 if (visited) {
                     if (world.maze.end[0] == x && world.maze.end[1] == y) {
-                        lines[4] += "|" + colors.yellow(colors.bold(tileName));
+                        lines[4] += colors.yellow(colors.bold(tileName));
                     } else {
-                        lines[4] += "|" + tileColor(tileName);
+                        lines[4] += tileColor(tileName);
                     }
                 } else {
-                    lines[4] += "|         ";
+                    lines[4] += "         ";
                 }
                 
                 if (visited && tile == mazes.types.wall) {
