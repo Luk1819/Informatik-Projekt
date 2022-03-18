@@ -1,11 +1,18 @@
 import * as enemies from "./enemies.js";
 import * as mazes from "./maze.js";
+import * as loot from "./loot.js";
 
 export const directions = {
     west: 0,
     south: 1,
     east: 2,
     north: 3,
+};
+
+const entityTypes = {
+    player: 0,
+    enemy: 1,
+    item: 2,
 };
 
 class World {
@@ -21,8 +28,11 @@ class World {
         let [x, y] = maze.start;
         this.player = [x, y];
         this.set(x, y, {
-            type: 0,
-            health: maze.player.hp
+            type: entityTypes.player,
+            props: {
+                health: maze.player.hp,
+                damage: maze.player.damage,
+            },
         });
         
         this.visit();
@@ -33,7 +43,7 @@ class World {
             
             for (let e of row) {
                 if (e != -1) {
-                    this.set(x, y, enemies.enemiesByType[e].createInstance());
+                    this.set(x, y, this.createEnemy(e));
                 }
                 
                 y++;
@@ -42,6 +52,27 @@ class World {
             x++;
         }
     }
+
+    createEnemy(type) {
+        return {
+            type: entityTypes.enemy,
+            props: enemies.enemiesByType[type].createInstance(),
+        };
+    }
+
+    createDrop(enemy) {
+        let id = enemy.props.loot;
+        if (!id) {
+            return null;
+        }
+
+        let item = loot.tables[id].get();
+        return {
+            type: entityTypes.item,
+            props: item,
+        };
+    }
+
     
     isVisited(x, y) {
         const line = this.visited[x];
@@ -132,7 +163,7 @@ class World {
             for (let y = 0; y < this.maze.size[1]; y++) {
                 let enemy = this.get(x, y);
                 
-                if (enemy && enemy.type !== 0 && this.isVisible(x, y)) {
+                if (enemy && enemy.type == entityTypes.enemy && this.isVisible(x, y)) {
                     es.push({
                         e: enemy,
                         loc: [x, y]
@@ -145,15 +176,15 @@ class World {
             let enemy = target.e;
             let [x, y] = target.loc;
             
-            for (let i = 0; i < enemy.speed; i++) {
+            for (let i = 0; i < enemy.props.speed; i++) {
                 let [px, py] = this.player;
-                let player = this.get(px, py);
+                let player = this.get(px, py).props;
                 
                 let newx = null;
                 let newy = null;
                 
                 if (Math.abs(x - px) < 2 && Math.abs(y - py) < 2) {
-                    player.health -= enemy.damage;
+                    player.props.health -= enemy.props.damage;
                 } else if (Math.abs(x - px) == 2) {
                     if (Math.abs(y - py) < 1) {
                         newx = (x + px) / 2;
@@ -199,19 +230,24 @@ class World {
             let target = this.get(newx, newy);
             let targetTile = this.maze.get(newx, newy);
             
-            if (target === null && targetTile !== mazes.types.wall) {
+            if ((target == null || target.type == entityTypes.item) && targetTile != mazes.types.wall) {
                 this.set(x, y, null);
                 this.set(newx, newy, player);
                 this.player = [newx, newy];
                 
                 this.visit();
+
+                if (target) {
+                    player.props.health += target.props.health || 0;
+                    player.props.damage += target.props.damage || 0;
+                }
                 
                 return true;
             } else if (target !== null) {
-                target.health -= this.maze.player.damage;
+                target.props.health -= player.props.damage;
                 
-                if (target.health <= 0) {
-                    this.set(newx, newy, null);
+                if (target.props.health <= 0) {
+                    this.set(newx, newy, this.createDrop(target));
                 }
                 
                 return true;
@@ -236,7 +272,7 @@ class World {
     }
     
     survived() {
-        return this.get(this.player[0], this.player[1]).health > 0;
+        return this.get(this.player[0], this.player[1]).props.health > 0;
     }
 }
 

@@ -46,7 +46,7 @@ export function create(x, y) {
         }
         array.push(layer);
     }
-    return new Maze(array, [0, 0], [x - 1, y - 1], [x, y]), { "hp": 100, "damage": 24 };
+    return new Maze(array, [0, 0], [x - 1, y - 1], [x, y]), { hp: 100, damage: 24 };
 }
 
 export function read(data) {

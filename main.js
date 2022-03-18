@@ -3,11 +3,13 @@ import { println } from "./utils.js";
 import * as maze from "./maze.js";
 import * as world from "./world.js";
 import * as enemies from "./enemies.js";
+import * as loot from "./loot.js";
 import colors from "@colors/colors/safe.js";
 
 cli.start();
 
 await enemies.discover();
+await loot.discover();
 let currMaze = maze.load("./mazes/maze1.json");
 let currWorld = world.create(currMaze);
 

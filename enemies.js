@@ -10,15 +10,17 @@ class Enemy {
     health;
     damage;
     speed;
+    loot;
     
     name;
     
-    constructor(type, health, damage, speed, name) {
+    constructor(type, health, damage, speed, name, loot) {
         this.type = type;
         this.health = health;
         this.damage = damage;
         this.speed = speed;
         this.name = name;
+        this.loot = loot;
     }
     
     createInstance() {
@@ -27,7 +29,8 @@ class Enemy {
             health: this.health,
             damage: this.damage,
             speed: this.speed,
-            name: this.name
+            name: this.name,
+            loot: this.loot,
         };
     }
 }
@@ -36,8 +39,8 @@ export const types = {};
 
 export const enemiesByType = {};
 
-export function create(type, health, damage, speed, name) {
-    const enemy = new Enemy(type, health, damage, speed, name);
+export function create(type, health, damage, speed, name, loot=null) {
+    const enemy = new Enemy(type, health, damage, speed, name, loot);
     types[name] = enemy;
     enemiesByType[type] = enemy;
     return enemy;
@@ -45,7 +48,7 @@ export function create(type, health, damage, speed, name) {
 
 export function read(data) {
     const json = JSON.parse(data);
-    return create(json.type, json.health, json.damage, json.speed, json.name);
+    return create(json.type, json.health, json.damage, json.speed, json.name, json.loot || null);
 }
 
 export async function load(path1) {
