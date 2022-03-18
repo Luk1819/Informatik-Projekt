@@ -49,16 +49,28 @@ export function create(x, y) {
     return new Maze(array, [0, 0], [x - 1, y - 1], [x, y]), { hp: 100, damage: 24 };
 }
 
-export function read(data) {
+export const mazes = {};
+
+export function read(id, data) {
     const json = JSON.parse(data);
     
     const start = json.start;
     const end = json.end;
-    
-    return new Maze(json.maze, start, end, json.enemies, [json.maze.length, json.maze[0].length], json.player);
+
+    let maze = new Maze(json.maze, start, end, json.enemies, [json.maze.length, json.maze[0].length], json.player);
+    mazes[id] = maze;
+    return maze;
 }
 
-export function load(path1) {
+export async function load(path1) {
     const data = fs.readFileSync(path.join(__dirname, path1), {encoding: "utf8"});
-    return read(data);
+    const id = /mazes\/(.*)\.json/.exec(path1)[1]
+    return read(id, data);
+}
+
+export async function discover() {
+    const entries = await globby("loot/*.json");
+    for (let file of entries) {
+        load(file);
+    }
 }
