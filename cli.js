@@ -233,7 +233,7 @@ export async function ingame(world, commandCallback, calcTurnCallback) {
             }
             
             if (cont.didMove) {
-                cont = cont.merge(calcTurnCallback());
+                cont = {...cont, ...calcTurnCallback()};
             }
         } catch (err) {
             onErr(err);
