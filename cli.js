@@ -2,6 +2,7 @@ import { println } from "./utils.js";
 import * as mazes from "./maze.js";
 import colors from "@colors/colors/safe.js";
 import * as readline from "readline-sync";
+import * as worlds from "./world.js";
 
 export const commands = {
     start: 0,
@@ -128,12 +129,15 @@ export async function ingame(world, commandCallback, calcTurnCallback) {
                 } else if (entity && visible && visited) {
                     let entityName;
                     let entityColor;
-                    if (entity.type === 0) {
+                    if (entity.type == worlds.entityTypes.player) {
                         entityName = "  Player ";
                         entityColor = function (str) {
                             return colors.green(colors.bold(str));
                         };
-                    } else {
+                    } else if (entity.type == worlds.entityTypes.item) {
+                        entityName = "   Item  ";
+                        entityColor = colors.cyan;
+                    } else if (entity.type == worlds.entityTypes.enemy) {
                         let name = entity.name;
                         let size = name.length;
                         if (size > 9) {
@@ -144,17 +148,21 @@ export async function ingame(world, commandCallback, calcTurnCallback) {
                         entityColor = function (str) {
                             return colors.red(colors.italic(str));
                         };
+                    } else {
+                        entityName = " Unknown "
+                        entityColor = function (str) {
+                            return colors.magenta(colors.bold(colors.italic(str)));
+                        };
                     }
                     
                     lines[0] += entityColor(entityName);
-                    lines[1] += colors.cyan(" H: " + entity.health.toString().padEnd(4) + " ");
+                    lines[1] += colors.magenta(" H: " + entity.props.health.toString().padEnd(4) + " ");
+                    lines[2] += colors.red(" D: " + entity.props.damage.toString().padEnd(4) + " ");
                     
-                    if (entity.type === 0) {
-                        lines[2] += "         ";
+                    if (!entity.props.speed || entity.props.speed == 1) {
                         lines[3] += "         ";
                     } else {
-                        lines[2] += colors.magenta(" D: " + entity.damage.toString().padEnd(4) + " ");
-                        lines[3] += colors.blue(" S: " + entity.speed.toString().padEnd(4) + " ");
+                        lines[3] += colors.blue(" S: " + entity.props.speed.toString().padEnd(4) + " ");
                     }
                 } else {
                     lines[0] += "         ";
