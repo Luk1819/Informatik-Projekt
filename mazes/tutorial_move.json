@@ -1,5 +1,6 @@
 {
     "name": "Bewegungs Tutorial",
+    "dependencies": [{}],
     "tutorial": true,
     "maze":[
         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],

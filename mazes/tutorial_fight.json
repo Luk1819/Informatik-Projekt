@@ -1,5 +1,6 @@
 {
     "name": "Kampf Tutorial",
+    "dependencies": ["tutorial_move"],
     "tutorial": true,
     "maze":[
         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
