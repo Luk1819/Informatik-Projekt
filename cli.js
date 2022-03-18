@@ -27,6 +27,7 @@ export function menu(callback) {
         try {
             const args = readline.promptCL();
             const cmd = args[0];
+            clear.inc(2);
             
             if (cmd == "start") {
                 cont = callback({
@@ -68,11 +69,11 @@ export function selection(length, printer) {
         selected: false,
         special: false,
     };
-    
-    clear.reset()
 
     while (!cont.selected) {
         try {
+            clear.reset()
+            
             printer(cont.index)
             
             const char = readline.keyIn("", {
@@ -225,6 +226,8 @@ export function ingame(world, commandCallback, calcTurnCallback) {
         printSep();
     }
     
+    clear.reset();
+    
     while (cont.cont) {
         try {
             printMaze();
@@ -233,6 +236,8 @@ export function ingame(world, commandCallback, calcTurnCallback) {
                 hideEchoBack: true,
                 mask: "",
             });
+            
+            clear.exec(true);
             
             if (special) {
                 if (char == "A") {
@@ -293,6 +298,8 @@ export function ingame(world, commandCallback, calcTurnCallback) {
             onErr(err);
         }
     }
+    
+    clear.exec();
     
     if (cont.print) {
         printMaze();

@@ -1,5 +1,5 @@
 import * as cli from "./cli.js";
-import { println, storage, containsAll } from "./utils.js";
+import { println, storage, containsAll, clear } from "./utils.js";
 import * as maze from "./maze.js";
 import * as world from "./world.js";
 import * as enemies from "./enemies.js";
@@ -241,3 +241,5 @@ while (res.start) {
 }
 
 storage.save();
+
+clear.exec();

@@ -8,7 +8,7 @@ export const __filename = fileURLToPath(import.meta.url);
 export const __dirname = path.dirname(__filename);
 
 
-let printed = 0;
+let printed = [1];
 
 export function print(value) {
     stdout.write(value);
@@ -16,16 +16,21 @@ export function print(value) {
 
 export function println(value = "") {
     print(`${value}\n`);
-    printed += 1
+    clear.inc();
 }
 
 export const clear = {
-    exec() {
-        print(ansiEscapes.eraseLines(printed + 1))
-        printed = 0;
+    exec(reset=false) {
+        print(ansiEscapes.eraseLines(printed.pop()));
+        if (reset) {
+            clear.reset();
+        }
     },
     reset() {
-        printed = 0;
+        printed.push(1);
+    },
+    inc(amount=1) {
+        printed[printed.length - 1] += amount;
     }
 }
 
