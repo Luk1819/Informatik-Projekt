@@ -13,8 +13,6 @@ await enemies.discover();
 await maze.discover();
 
 let mazeId = "tutorial_move";
-let currMaze = maze.mazes[mazeId];
-let currWorld = world.create(currMaze);
 
 let res = {
     start: true,
@@ -25,13 +23,11 @@ storage.load();
 while (res.start) {
     res = cli.menu(function (cmd) {
         if (cmd.command == cli.commands.start) {
-            println("Starting!");
             return {
                 cont: false,
                 start: true,
             };
         } else if (cmd.command == cli.commands.exit) {
-            println("Exiting!");
             return {
                 cont: false,
                 start: false,
@@ -135,8 +131,6 @@ while (res.start) {
             }
             
             mazeId = entry.id;
-            currMaze = maze.mazes[entry.id];
-            currWorld = world.create(currMaze);
             println(`Loaded maze ${entry.name}!`);
         }
         
@@ -149,20 +143,22 @@ while (res.start) {
         restart: res.start,
     };
     
+    let currMaze = maze.mazes[mazeId];
+    
     while (cont.restart) {
+        let currWorld = world.create(currMaze);
+        
         cont.restart = false;
         
         cont = cli.ingame(currWorld, function (cmd) {
             let moved = false;
             
             if (cmd.command == cli.igcommands.exit) {
-                println("Exiting!");
                 return {
                     cont: false,
                     exited: true
                 };
             } else if (cmd.command == cli.igcommands.restart) {
-                println("Restarting!");
                 currWorld = world.create(currMaze);
                 return {
                     cont: false,
@@ -219,6 +215,8 @@ while (res.start) {
                 cont: true
             };
         });
+        
+        cont.survived = currWorld.survived();
     }
     
     function printSep(size) {
@@ -228,7 +226,7 @@ while (res.start) {
     }
     
     if (res.start && !cont.exited) {
-        if (!currWorld.survived()) {
+        if (!cont.survived) {
             printSep(14);
             println(colors.red(colors.italic("YOU'RE DEAD...")));
             printSep(14);
@@ -243,5 +241,3 @@ while (res.start) {
 }
 
 storage.save();
-
-println("Terminating...");

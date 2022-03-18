@@ -47,6 +47,26 @@ export function containsAll(source, target) {
     return source.every(v => target.includes(v));
 }
 
+export class Position {
+    x;
+    y;
+    
+    constructor(value, y=null) {
+        if (y !== null) {
+            this.x = value;
+            this.y = y;
+        } else if (typeof(value) == "object") {
+            if (value.x) {
+                this.x = value.x;
+                this.y = value.y;
+            } else {
+                this.x = value[0];
+                this.y = value[1];
+            }
+        }
+    }
+}
+
 class Storage {
     completed;
     

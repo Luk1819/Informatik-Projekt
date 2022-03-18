@@ -1,6 +1,7 @@
 import * as enemies from "./enemies.js";
 import * as mazes from "./maze.js";
 import * as loot from "./loot.js";
+import { Position } from "./utils.js";
 
 export const directions = {
     west: 0,
@@ -37,19 +38,14 @@ class World {
         
         this.visit();
         
-        x = 0;
-        for (let row of maze.enemies) {
-            y = 0;
-            
-            for (let e of row) {
-                if (e != -1) {
-                    this.set(x, y, this.createEnemy(e));
-                }
-                
-                y++;
+        for (let enemy of maze.enemies) {
+            let pos;
+            if (enemy.pos) {
+                pos = new Position(enemy.pos);
+            } else {
+                pos = new Position(enemy)
             }
-            
-            x++;
+            this.set(pos.x, pos.y, this.createEnemy(enemy.type));
         }
     }
 
