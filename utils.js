@@ -48,6 +48,10 @@ export function rotate(value, min, max) {
     }
 }
 
+export function clamp(value, min, max) {
+    return Math.min(max, Math.max(value, min));
+}
+
 export function containsAll(source, target) {
     return source.every(v => target.includes(v));
 }

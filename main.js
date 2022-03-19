@@ -79,10 +79,10 @@ while (res.start) {
             }
             
             let sorter = function (a, b) {
-                return a.order.localeCompare(b.order)
+                return a.order.localeCompare(b.order);
             }
-            levels.sort(sorter)
-            tutorials.sort(sorter)
+            levels.sort(sorter);
+            tutorials.sort(sorter);
             
             const tutorialCount = tutorials.length;
             const levelCount = levels.length;
@@ -244,7 +244,10 @@ while (res.start) {
             println(colors.green(colors.bold("YOU WON!")));
             printSep(8);
             
-            storage.get().completed.push(mazeId);
+            let completed = storage.get().completed;
+            if (!completed.includes(mazeId)) {
+                completed.push(mazeId);
+            }
         }
     }
 }

@@ -1,4 +1,4 @@
-import { println, rotate, clear } from "./utils.js";
+import { println, rotate, clear, clamp } from "./utils.js";
 import * as mazes from "./maze.js";
 import colors from "@colors/colors/safe.js";
 import * as readline from "readline-sync";
@@ -124,17 +124,44 @@ export function ingame(world, commandCallback, calcTurnCallback) {
     
     function printMaze() {
         let size = world.maze.size;
+        let playerPos = world.player;
         
-        function printSep() {
-            println("-".repeat(size[1] * 10 + 1));
+        let windowMargin = [4, 8];
+        let windowSize = windowMargin.map(v => 2 * v + 1);
+        
+        let center = playerPos.map((v, idx) => clamp(v, windowMargin[idx], size[idx] - windowMargin[idx] - 1));
+        if (windowSize[0] > size[0]) {
+            windowSize[0] = size[0];
+            windowMargin[0] = Math.trunc(size[0] / 2);
+            center[0] = windowMargin[0];
+        }
+        if (windowSize[1] > size[1]) {
+            windowSize[1] = size[1];
+            windowMargin[1] = Math.trunc(size[1] / 2);
+            center[1] = windowMargin[1];
         }
         
-        for (let x = 0; x < size[0]; x++) {
+        let boundsTopLeft = center.map((v, idx) => (v - windowMargin[idx]));
+        let boundsBottomRight = boundsTopLeft.map((v, idx) => (v + windowSize[idx]));
+        
+        println("size: " + size)
+        println("playerPos: " + playerPos)
+        println("windowMargin: " + windowMargin)
+        println("windowSize: " + windowSize)
+        println("center: " + center)
+        println("boundsTopLeft: " + boundsTopLeft)
+        println("boundsBottomRight: " + boundsBottomRight)
+        
+        function printSep() {
+            println("-".repeat(windowSize[1] * 10 + 1));
+        }
+        
+        for (let x = boundsTopLeft[0]; x < boundsBottomRight[0]; x++) {
             printSep();
             
             let lines = ["", "", "", "", ""];
             
-            for (let y = 0; y < size[1]; y++) {
+            for (let y = boundsTopLeft[1]; y < boundsBottomRight[1]; y++) {
                 let tile = world.maze.get(x, y);
                 let entity = world.get(x, y);
                 let visible = world.isVisible(x, y);
