@@ -173,11 +173,6 @@ while (res.start) {
                     cont: false,
                     restart: true
                 };
-            } else if (cmd.command == cli.igcommands.map) {
-                return {
-                    cont: true,
-                    map: !cmd.map,
-                }
             } else if (cmd.command == cli.igcommands.up) {
                 if (!currWorld.walk(world.directions.north)) {
                     println("Illegal move!");

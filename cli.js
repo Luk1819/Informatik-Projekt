@@ -69,12 +69,12 @@ export function selection(length, printer) {
         selected: false,
         special: false,
     };
-
+    
     while (!cont.selected) {
         try {
-            clear.reset()
+            clear.reset();
             
-            printer(cont.index)
+            printer(cont.index);
             
             const char = readline.keyIn("", {
                 hideEchoBack: true,
@@ -96,13 +96,13 @@ export function selection(length, printer) {
                     cont.selected = true;
                 }
             }
-    
-            clear.exec()
+            
+            clear.exec();
         } catch (err) {
             onErr(err);
         }
     }
-
+    
     return cont.index;
 }
 
@@ -111,9 +111,8 @@ export const igcommands = {
     left: 1,
     down: 2,
     right: 3,
-    map: 4,
-    exit: 5,
-    restart: 6,
+    exit: 4,
+    restart: 5,
 };
 
 export function ingame(world, commandCallback, calcTurnCallback) {
@@ -130,7 +129,7 @@ export function ingame(world, commandCallback, calcTurnCallback) {
             for (let y = 0; y < size[1]; y++) {
                 let tile = world.maze.get(x, y);
                 let visited = world.isVisited(x, y);
-            
+                
                 let tileChar;
                 let tileColor;
                 if (tile == mazes.types.stone) {
@@ -145,7 +144,7 @@ export function ingame(world, commandCallback, calcTurnCallback) {
                 
                 if (visited) {
                     if (world.player[0] == x && world.player[1] == y) {
-                        print(colors.green(colors.bold("$")))
+                        print(colors.green(colors.bold("$")));
                     } else if (world.maze.end[0] == x && world.maze.end[1] == y) {
                         print(colors.yellow(colors.bold("!")));
                     } else {
@@ -253,7 +252,7 @@ export function ingame(world, commandCallback, calcTurnCallback) {
                             return colors.red(colors.italic(str));
                         };
                     } else {
-                        entityName = " Unknown "
+                        entityName = " Unknown ";
                         entityColor = function (str) {
                             return colors.magenta(colors.bold(colors.italic(str)));
                         };
@@ -287,7 +286,18 @@ export function ingame(world, commandCallback, calcTurnCallback) {
     
     while (cont.cont) {
         try {
-            if (cont.map) {
+            if (cont.help) {
+                println(colors.green("----- HELP ------"));
+                println(colors.cyan("--- CONTROLS ---"));
+                println(colors.cyan("  WASD / Arrow keys   : move around"));
+                println();
+                println(colors.cyan("  M                   : open the minimap"));
+                println();
+                println(colors.cyan("  E                   : exit the level"));
+                println(colors.cyan("  R                   : restart this level"));
+                println(colors.cyan("  H                   : print this help"));
+                println(colors.green("----- HELP ------"));
+            } else if (cont.map) {
                 printMap();
             } else {
                 printMaze();
@@ -300,12 +310,19 @@ export function ingame(world, commandCallback, calcTurnCallback) {
             
             clear.exec(true);
             
-            if (cont.map) {
+            if (cont.help) {
+                if (char == "h") {
+                    cont = {
+                        cont: true,
+                        help: false,
+                    };
+                }
+            } else if (cont.map) {
                 if (char == "m") {
-                    cont = commandCallback({
-                        command: igcommands.map,
-                        map: cont.map,
-                    });
+                    cont = {
+                        cont: true,
+                        map: false,
+                    };
                 }
             } else {
                 if (special) {
@@ -326,11 +343,14 @@ export function ingame(world, commandCallback, calcTurnCallback) {
                             command: igcommands.left,
                         });
                     }
-        
+                    
                     special = false;
                 } else {
                     if (char == "h") {
-                        println("THERE IS NO HELP FOR YOU!");
+                        cont = {
+                            cont: true,
+                            help: true,
+                        };
                     } else if (char == "[") {
                         special = true;
                     } else if (char == "w") {
@@ -350,9 +370,10 @@ export function ingame(world, commandCallback, calcTurnCallback) {
                             command: igcommands.left,
                         });
                     } else if (char == "m") {
-                        cont = commandCallback({
-                            command: igcommands.map,
-                        });
+                        cont = {
+                            cont: true,
+                            map: true,
+                        };
                     } else if (char == "e") {
                         cont = commandCallback({
                             command: igcommands.exit,
@@ -363,11 +384,12 @@ export function ingame(world, commandCallback, calcTurnCallback) {
                         });
                     }
                 }
+                
+                if (cont.didMove) {
+                    cont = {...cont, ...calcTurnCallback()};
+                }
             }
             
-            if (cont.didMove) {
-                cont = {...cont, ...calcTurnCallback()};
-            }
         } catch (err) {
             onErr(err);
         }
