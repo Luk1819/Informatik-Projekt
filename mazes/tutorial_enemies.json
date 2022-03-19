@@ -2,6 +2,7 @@
     "name": "Gegner Tutorial",
     "dependencies": [ "tutorial_fight" ],
     "tutorial": true,
+    "order": "tut-2",
     "maze": [
         [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ],
         [ 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 0 ],

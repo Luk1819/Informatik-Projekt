@@ -2,6 +2,7 @@
     "name": "Kampf Tutorial",
     "dependencies": [ "tutorial_move" ],
     "tutorial": true,
+    "order": "tut-1",
     "maze": [
         [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ],
         [ 0, 1, 1, 1, 1, 1, 1, 0, 1, 1, 0, 1, 1, 1, 1, 1, 1, 0 ],

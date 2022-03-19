@@ -57,6 +57,7 @@ while (res.start) {
                         name: level.data.name,
                         done: true,
                         available: true,
+                        order: level.data.order,
                         id,
                     });
                     available[av] += 1;
@@ -64,16 +65,24 @@ while (res.start) {
                     arr.push({
                         name: level.data.name,
                         available: true,
+                        order: level.data.order,
                         id,
                     });
                     available[av] += 1;
                 } else {
                     arr.push({
                         name: level.data.name,
+                        order: level.data.order,
                         id,
                     });
                 }
             }
+            
+            let sorter = function (a, b) {
+                return a.order.localeCompare(b.order)
+            }
+            levels.sort(sorter)
+            tutorials.sort(sorter)
             
             const tutorialCount = tutorials.length;
             const levelCount = levels.length;

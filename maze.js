@@ -13,7 +13,7 @@ class Maze {
     
     data;
     
-    constructor(array, start, end, enemies, size, player, data={name: "", dependencies: [], tutorial: false}) {
+    constructor(array, start, end, enemies, size, player, data={name: "", dependencies: [], tutorial: false, order: "custom"}) {
         this.array = array;
         this.start = start;
         this.end = end;
@@ -58,7 +58,7 @@ export const mazes = {};
 export function read(id, data) {
     const json = JSON.parse(data);
 
-    let maze = new Maze(json.maze, json.start, json.end, json.enemies, [json.maze.length, json.maze[0].length], json.player, {dependencies: json.dependencies, name: json.name, tutorial: json.tutorial || false});
+    let maze = new Maze(json.maze, json.start, json.end, json.enemies, [json.maze.length, json.maze[0].length], json.player, {dependencies: json.dependencies, name: json.name, tutorial: json.tutorial || false, order: json.order});
     mazes[id] = maze;
     return maze;
 }

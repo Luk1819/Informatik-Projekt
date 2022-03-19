@@ -2,6 +2,7 @@
     "name": "Bewegungs Tutorial",
     "dependencies": [ ],
     "tutorial": true,
+    "order": "tut-0",
     "maze": [
         [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ],
         [ 0, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0 ],
