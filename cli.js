@@ -1,4 +1,4 @@
-import { println, rotate, clear, clamp } from "./utils.js";
+import { print, println, rotate, clear, clamp } from "./utils.js";
 import * as mazes from "./maze.js";
 import colors from "@colors/colors/safe.js";
 import * as readline from "readline-sync";
@@ -111,8 +111,9 @@ export const igcommands = {
     left: 1,
     down: 2,
     right: 3,
-    exit: 4,
-    restart: 5
+    map: 4,
+    exit: 5,
+    restart: 6,
 };
 
 export function ingame(world, commandCallback, calcTurnCallback) {
@@ -121,6 +122,43 @@ export function ingame(world, commandCallback, calcTurnCallback) {
         didMove: false
     };
     let special = false;
+    
+    function printMap() {
+        let size = world.maze.size;
+        
+        for (let x = 0; x < size[0]; x++) {
+            for (let y = 0; y < size[1]; y++) {
+                let tile = world.maze.get(x, y);
+                let visited = world.isVisited(x, y);
+            
+                let tileChar;
+                let tileColor;
+                if (tile == mazes.types.stone) {
+                    tileChar = "_";
+                    tileColor = colors.gray;
+                } else if (tile == mazes.types.wall) {
+                    tileChar = "#";
+                    tileColor = function (str) {
+                        return colors.black(colors.italic(colors.bold(str)));
+                    };
+                }
+                
+                if (visited) {
+                    if (world.player[0] == x && world.player[1] == y) {
+                        print(colors.green(colors.bold("$")))
+                    } else if (world.maze.end[0] == x && world.maze.end[1] == y) {
+                        print(colors.yellow(colors.bold("!")));
+                    } else {
+                        print(tileColor(tileChar));
+                    }
+                } else {
+                    print(colors.white("?"));
+                }
+            }
+            
+            println();
+        }
+    }
     
     function printMaze() {
         let size = world.maze.size;
@@ -143,14 +181,6 @@ export function ingame(world, commandCallback, calcTurnCallback) {
         
         let boundsTopLeft = center.map((v, idx) => (v - windowMargin[idx]));
         let boundsBottomRight = boundsTopLeft.map((v, idx) => (v + windowSize[idx]));
-        
-        println("size: " + size)
-        println("playerPos: " + playerPos)
-        println("windowMargin: " + windowMargin)
-        println("windowSize: " + windowSize)
-        println("center: " + center)
-        println("boundsTopLeft: " + boundsTopLeft)
-        println("boundsBottomRight: " + boundsBottomRight)
         
         function printSep() {
             println("-".repeat(windowSize[1] * 10 + 1));
@@ -191,7 +221,7 @@ export function ingame(world, commandCallback, calcTurnCallback) {
                         lines[4] += tileColor(tileName);
                     }
                 } else {
-                    lines[4] += "         ";
+                    lines[4] += colors.white(" <_____> ");
                 }
                 
                 if (visited && tile == mazes.types.wall) {
@@ -257,7 +287,11 @@ export function ingame(world, commandCallback, calcTurnCallback) {
     
     while (cont.cont) {
         try {
-            printMaze();
+            if (cont.map) {
+                printMap();
+            } else {
+                printMaze();
+            }
             
             const char = readline.keyIn("", {
                 hideEchoBack: true,
@@ -266,55 +300,68 @@ export function ingame(world, commandCallback, calcTurnCallback) {
             
             clear.exec(true);
             
-            if (special) {
-                if (char == "A") {
+            if (cont.map) {
+                if (char == "m") {
                     cont = commandCallback({
-                        command: igcommands.up,
-                    });
-                } else if (char == "B") {
-                    cont = commandCallback({
-                        command: igcommands.down,
-                    });
-                } else if (char == "C") {
-                    cont = commandCallback({
-                        command: igcommands.right,
-                    });
-                } else if (char == "D") {
-                    cont = commandCallback({
-                        command: igcommands.left,
+                        command: igcommands.map,
+                        map: cont.map,
                     });
                 }
-                
-                special = false;
             } else {
-                if (char == "h") {
-                    println("THERE IS NO HELP FOR YOU!");
-                } else if (char == "[") {
-                    special = true;
-                } else if (char == "w") {
-                    cont = commandCallback({
-                        command: igcommands.up,
-                    });
-                } else if (char == "s") {
-                    cont = commandCallback({
-                        command: igcommands.down,
-                    });
-                } else if (char == "d") {
-                    cont = commandCallback({
-                        command: igcommands.right,
-                    });
-                } else if (char == "a") {
-                    cont = commandCallback({
-                        command: igcommands.left,
-                    });
-                } else if (char == "e") {
-                    cont = commandCallback({
-                        command: igcommands.exit,
-                    });
-                } else if (char == "r") {
-                    cont = commandCallback({
-                        command: igcommands.restart,
-                    });
+                if (special) {
+                    if (char == "A") {
+                        cont = commandCallback({
+                            command: igcommands.up,
+                        });
+                    } else if (char == "B") {
+                        cont = commandCallback({
+                            command: igcommands.down,
+                        });
+                    } else if (char == "C") {
+                        cont = commandCallback({
+                            command: igcommands.right,
+                        });
+                    } else if (char == "D") {
+                        cont = commandCallback({
+                            command: igcommands.left,
+                        });
+                    }
+        
+                    special = false;
+                } else {
+                    if (char == "h") {
+                        println("THERE IS NO HELP FOR YOU!");
+                    } else if (char == "[") {
+                        special = true;
+                    } else if (char == "w") {
+                        cont = commandCallback({
+                            command: igcommands.up,
+                        });
+                    } else if (char == "s") {
+                        cont = commandCallback({
+                            command: igcommands.down,
+                        });
+                    } else if (char == "d") {
+                        cont = commandCallback({
+                            command: igcommands.right,
+                        });
+                    } else if (char == "a") {
+                        cont = commandCallback({
+                            command: igcommands.left,
+                        });
+                    } else if (char == "m") {
+                        cont = commandCallback({
+                            command: igcommands.map,
+                        });
+                    } else if (char == "e") {
+                        cont = commandCallback({
+                            command: igcommands.exit,
+                        });
+                    } else if (char == "r") {
+                        cont = commandCallback({
+                            command: igcommands.restart,
+                        });
+                    }
                 }
             }
             
