@@ -26,26 +26,36 @@ export function menu(callback) {
     while (cont.cont) {
         try {
             const selected = selection(3, function (index) {
+                println("-".repeat(15));
+                println(colors.green("   MAIN MENU   "));
+                
                 let idx = 0;
                 
                 function printCommand(cmd) {
                     let line = "";
+                    let selected = idx == index;
                     
-                    if (idx == index) {
+                    if (selected) {
                         line += " >> ";
                     } else {
                         line += "    ";
                     }
                     idx += 1;
                     
-                    line += cmd;
+                    if (selected) {
+                        line += colors.white(colors.bold(cmd));
+                    } else  {
+                        line += colors.gray(cmd);
+                    }
                     
                     println(line);
                 }
                 
                 printCommand("start");
                 printCommand("select");
-                printCommand("exit");
+                printCommand("exit")
+                
+                println("-".repeat(15));
             });
             
             if (selected == 0) {

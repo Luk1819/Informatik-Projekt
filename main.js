@@ -93,9 +93,10 @@ while (res.start) {
                 function printArray(array) {
                     for (let entry of array) {
                         let line = "";
+                        let selected = entry.available && idx == index;
                         
                         if (entry.available) {
-                            if (idx == index) {
+                            if (selected) {
                                 line += " >> ";
                             } else {
                                 line += "    ";
@@ -105,13 +106,19 @@ while (res.start) {
                             line += "    ";
                         }
                         
+                        let text;
                         if (entry.done) {
-                            line += colors.green(entry.name);
+                            text = colors.green(entry.name);
                         } else if (entry.available) {
-                            line += colors.blue(entry.name);
+                            text = colors.blue(entry.name);
                         } else {
-                            line += colors.gray(entry.name);
+                            text = colors.gray(entry.name);
                         }
+                        
+                        if (selected) {
+                            text = colors.bold(text);
+                        }
+                        line += text;
                         
                         println(line);
                     }
