@@ -3,7 +3,11 @@
   "version": "1.0.0",
   "description": "Mazes",
   "main": "main.js",
-  "authors": ["Noah", "Andrej", "Lukas"],
+  "authors": [
+    "Noah",
+    "Andrej",
+    "Lukas"
+  ],
   "homepage": "https://baldu.at/geheim-projekt/",
   "repository": "https://github.com/Luk1819/Informatik-Projekt",
   "bugs": "https://github.com/Luk1819/Informatik-Projekt/issues",
@@ -13,11 +17,14 @@
   "type": "module",
   "dependencies": {
     "@colors/colors": "1.5.0",
+    "ansi-escapes": "5.0.0",
     "globby": "13.1.1",
-    "readline-sync": "1.4.10",
-    "ansi-escapes": "5.0.0"
+    "readline-sync": "1.4.10"
   },
   "scripts": {
     "start": "node main.js"
+  },
+  "devDependencies": {
+    "@types/node": "^17.0.21"
   }
 }

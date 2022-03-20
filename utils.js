@@ -1,6 +1,5 @@
 import path from "path";
 import { fileURLToPath } from "url";
-import { stdout } from "node:process";
 import ansiEscapes from "ansi-escapes";
 import * as fs from "fs";
 
@@ -11,7 +10,7 @@ export const __dirname = path.dirname(__filename);
 let printed = [1];
 
 export function print(value) {
-    stdout.write(value);
+    process.stdout.write(value);
 }
 
 export function println(value = "") {

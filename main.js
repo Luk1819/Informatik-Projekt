@@ -123,24 +123,26 @@ while (res.start) {
                 printArray(levels);
             });
             
-            let entry;
-            let idx = 0;
-            for (let index = 0; index < tutorialCount + levelCount; index++) {
-                if (index < tutorialCount) {
-                    entry = tutorials[index];
-                } else {
-                    entry = levels[index - tutorialCount];
-                }
-                if (entry.available) {
-                    if (idx == chosen) {
-                        break
+            if (chosen != -1) {
+                let entry;
+                let idx = 0;
+                for (let index = 0; index < tutorialCount + levelCount; index++) {
+                    if (index < tutorialCount) {
+                        entry = tutorials[index];
+                    } else {
+                        entry = levels[index - tutorialCount];
                     }
-                    idx += 1;
+                    if (entry.available) {
+                        if (idx == chosen) {
+                            break
+                        }
+                        idx += 1;
+                    }
                 }
+    
+                mazeId = entry.id;
+                println(`Loaded maze ${entry.name}!`);
             }
-            
-            mazeId = entry.id;
-            println(`Loaded maze ${entry.name}!`);
         }
         
         return {
@@ -156,8 +158,6 @@ while (res.start) {
     
     while (cont.restart) {
         let currWorld = world.create(currMaze);
-        
-        cont.restart = false;
         
         cont = cli.ingame(currWorld, function (cmd) {
             let moved = false;

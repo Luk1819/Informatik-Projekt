@@ -25,34 +25,41 @@ export function menu(callback) {
     
     while (cont.cont) {
         try {
-            const args = readline.promptCL();
-            const cmd = args[0];
-            clear.inc(2);
+            const selected = selection(3, function (index) {
+                let idx = 0;
+                
+                function printCommand(cmd) {
+                    let line = "";
+                    
+                    if (idx == index) {
+                        line += " >> ";
+                    } else {
+                        line += "    ";
+                    }
+                    idx += 1;
+                    
+                    line += cmd;
+                    
+                    println(line);
+                }
+                
+                printCommand("start");
+                printCommand("select");
+                printCommand("exit");
+            });
             
-            if (cmd == "start") {
+            if (selected == 0) {
                 cont = callback({
                     command: commands.start,
                 });
-            } else if (cmd == "exit") {
-                cont = callback({
-                    command: commands.exit,
-                });
-            } else if (cmd == "help") {
-                println(colors.green("----- HELP ------"));
-                println(colors.cyan("--- CONTROLS ---"));
-                println(colors.cyan("  start       : starts the game"));
-                println();
-                println(colors.cyan("  select      : select a level to play"));
-                println();
-                println(colors.cyan("  exit        : exit the game"));
-                println(colors.cyan("  help        : print this help"));
-                println(colors.green("----- HELP ------"));
-            } else if (cmd == "select") {
+            } else if (selected == 1) {
                 cont = callback({
                     command: commands.select,
                 });
-            } else {
-                println("Unknown command: " + args);
+            } else if (selected == 2) {
+                cont = callback({
+                    command: commands.exit,
+                });
             }
         } catch (err) {
             onErr(err);
@@ -181,14 +188,32 @@ export function ingame(world, commandCallback, calcTurnCallback) {
         let boundsTopLeft = center.map((v, idx) => (v - windowMargin[idx]));
         let boundsBottomRight = boundsTopLeft.map((v, idx) => (v + windowSize[idx]));
         
+        let lines = [];
+        let offset = 0;
+        
+        let lineSize = windowSize[1] * 10 + 1;
+        
         function printSep() {
-            println("-".repeat(windowSize[1] * 10 + 1));
+            lines[offset] = "-".repeat(lineSize);
+            offset += 1;
         }
         
         for (let x = boundsTopLeft[0]; x < boundsBottomRight[0]; x++) {
             printSep();
             
-            let lines = ["", "", "", "", ""];
+            lines[offset] = "";
+            lines[offset + 1] = "";
+            lines[offset + 2] = "";
+            lines[offset + 3] = "";
+            lines[offset + 4] = "";
+            
+            function printVerticalLine() {
+                lines[offset] += "|";
+                lines[offset + 1] += "|";
+                lines[offset + 2] += "|";
+                lines[offset + 3] += "|";
+                lines[offset + 4] += "|";
+            }
             
             for (let y = boundsTopLeft[1]; y < boundsBottomRight[1]; y++) {
                 let tile = world.maze.get(x, y);
@@ -208,27 +233,24 @@ export function ingame(world, commandCallback, calcTurnCallback) {
                     };
                 }
                 
-                lines[0] += "|";
-                lines[1] += "|";
-                lines[2] += "|";
-                lines[3] += "|";
-                lines[4] += "|";
+                printVerticalLine();
+                
                 if (visited) {
                     if (world.maze.end[0] == x && world.maze.end[1] == y) {
-                        lines[4] += colors.yellow(colors.bold(tileName));
+                        lines[offset + 4] += colors.yellow(colors.bold(tileName));
                     } else {
-                        lines[4] += tileColor(tileName);
+                        lines[offset + 4] += tileColor(tileName);
                     }
                 } else {
-                    lines[4] += colors.white(" <_____> ");
+                    lines[offset + 4] += colors.white(" <_____> ");
                 }
                 
                 if (visited && tile == mazes.types.wall) {
                     let fill = colors.black(colors.bold(" ####### "));
-                    lines[0] += fill;
-                    lines[1] += fill;
-                    lines[2] += fill;
-                    lines[3] += fill;
+                    lines[offset] += fill;
+                    lines[offset + 1] += fill;
+                    lines[offset + 2] += fill;
+                    lines[offset + 3] += fill;
                 } else if (entity && visible && visited) {
                     let entityName;
                     let entityColor;
@@ -244,7 +266,7 @@ export function ingame(world, commandCallback, calcTurnCallback) {
                         let name = entity.props.name;
                         let size = name.length;
                         if (size > 9) {
-                            entityName = name.substring(0, 8) + ".";
+                            entityName = name.substring(0, 6) + "...";
                         } else {
                             entityName = " ".repeat((10 - size) >> 1) + name + " ".repeat((9 - size) >> 1);
                         }
@@ -258,28 +280,60 @@ export function ingame(world, commandCallback, calcTurnCallback) {
                         };
                     }
                     
-                    lines[0] += entityColor(entityName);
-                    lines[1] += colors.magenta(" H: " + entity.props.health.toString().padEnd(4) + " ");
-                    lines[2] += colors.red(" D: " + entity.props.damage.toString().padEnd(4) + " ");
+                    lines[offset] += entityColor(entityName);
+                    lines[offset + 1] += colors.magenta(" H: " + entity.props.health.toString().padEnd(4) + " ");
+                    lines[offset + 2] += colors.red(" D: " + entity.props.damage.toString().padEnd(4) + " ");
                     
                     if (!entity.props.speed || entity.props.speed == 1) {
-                        lines[3] += "         ";
+                        lines[offset + 3] += "         ";
                     } else {
-                        lines[3] += colors.blue(" S: " + entity.props.speed.toString().padEnd(4) + " ");
+                        lines[offset + 3] += colors.blue(" S: " + entity.props.speed.toString().padEnd(4) + " ");
                     }
                 } else {
-                    lines[0] += "         ";
-                    lines[1] += "         ";
-                    lines[2] += "         ";
-                    lines[3] += "         ";
+                    lines[offset] += "         ";
+                    lines[offset + 1] += "         ";
+                    lines[offset + 2] += "         ";
+                    lines[offset + 3] += "         ";
                 }
             }
             
-            for (const line of lines) {
-                println(line + "|");
+            printVerticalLine();
+            
+            offset += 5;
+        }
+        
+        printSep();
+        
+        let textToAdd = [];
+        let textSize = 12;
+        
+        function noText() {
+            textToAdd.push(" ".repeat(textSize));
+        }
+        
+        function text(txt) {
+            if (txt.length > textSize) {
+                textToAdd.push(txt.substring(0, textSize - 3) + "...");
+            } else {
+                textToAdd.push( txt.padEnd(textSize));
             }
         }
-        printSep();
+        
+        noText();
+        text("  Kills: " + world.kills);
+        text("  Rounds: " + world.rounds);
+        
+        for (let idx in textToAdd) {
+            if (lines[idx]) {
+                lines[idx] += textToAdd[idx];
+            } else {
+                lines[idx] = " ".repeat(lineSize) + textToAdd;
+            }
+        }
+        
+        for (let line of lines) {
+            println(line);
+        }
     }
     
     clear.reset();

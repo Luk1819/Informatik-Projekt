@@ -22,6 +22,9 @@ class World {
     player;
     visited;
     
+    kills = 0;
+    rounds = 0;
+    
     constructor(maze) {
         this.maze = maze;
         this.entities = {};
@@ -242,14 +245,17 @@ class World {
                     player.props.damage += target.props.damage || 0;
                 }
                 
+                this.rounds += 1;
                 return true;
             } else if (target !== null) {
                 target.props.health -= player.props.damage;
                 
                 if (target.props.health <= 0) {
                     this.set(newx, newy, this.createDrop(target));
+                    this.kills += 1;
                 }
-                
+    
+                this.rounds += 1;
                 return true;
             } else {
                 return false;
