@@ -4,7 +4,7 @@ import * as maze from "./maze.js";
 import * as world from "./world.js";
 import * as enemies from "./enemies.js";
 import * as loot from "./loot.js";
-import colors from "@colors/colors/safe.js";
+import chalk from "chalk";
 
 cli.start();
 
@@ -87,7 +87,7 @@ while (res.start) {
             let chosen = cli.selection(available.tutorials + available.levels, function (index) {
                 let width = 40;
                 println("-".repeat(width));
-                println(colors.yellow(" ".repeat((width - 20) / 2) + "   LEVEL SELECTION  " + " ".repeat((width - 20) / 2)));
+                println(chalk.yellow(" ".repeat((width - 20) / 2) + "   LEVEL SELECTION  " + " ".repeat((width - 20) / 2)));
                 println();
                 
                 let idx = 0;
@@ -110,15 +110,15 @@ while (res.start) {
                         
                         let text;
                         if (entry.done) {
-                            text = colors.green(entry.name);
+                            text = chalk.green(entry.name);
                         } else if (entry.available) {
-                            text = colors.blue(entry.name);
+                            text = chalk.blue(entry.name);
                         } else {
-                            text = colors.gray(entry.name);
+                            text = chalk.gray(entry.name);
                         }
                         
                         if (selected) {
-                            text = colors.bold(text);
+                            text = chalk.bold(text);
                         }
                         line += text;
                         
@@ -126,10 +126,10 @@ while (res.start) {
                     }
                 }
                 
-                println(colors.yellow("      Tutorials"));
+                println(chalk.yellow("      Tutorials"));
                 printArray(tutorials);
                 println();
-                println(colors.yellow("      Levels"));
+                println(chalk.yellow("      Levels"));
                 printArray(levels);
                 
                 println();
@@ -242,18 +242,18 @@ while (res.start) {
     
     function printSep(size) {
         println();
-        println(colors.gray("-".repeat(size)));
+        println(chalk.gray("-".repeat(size)));
         println();
     }
     
     if (res.start && !cont.exited) {
         if (!cont.survived) {
             printSep(14);
-            println(colors.red(colors.italic("YOU'RE DEAD...")));
+            println(chalk.red.italic("YOU'RE DEAD..."));
             printSep(14);
         } else {
             printSep(8);
-            println(colors.green(colors.bold("YOU WON!")));
+            println(chalk.green.bold("YOU WON!"));
             printSep(8);
             
             let completed = storage.get().completed;

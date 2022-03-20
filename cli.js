@@ -1,6 +1,6 @@
 import { print, println, rotate, clear, clamp, storage } from "./utils.js";
 import * as mazes from "./maze.js";
-import colors from "@colors/colors/safe.js";
+import chalk from "chalk";
 import * as readline from "readline-sync";
 import * as worlds from "./world.js";
 
@@ -11,7 +11,7 @@ export const commands = {
 };
 
 export function start() {
-    readline.setDefaultOptions({prompt: colors.yellow("> ")});
+    readline.setDefaultOptions({prompt: chalk.yellow("> ")});
 }
 
 function onErr(err) {
@@ -28,7 +28,7 @@ export function menu(callback) {
             const selected = selection(3, function (index) {
                 let width = 50;
                 println("-".repeat(width));
-                println(colors.green(" ".repeat((width - 10) / 2) + " MAIN MENU" + " ".repeat((width - 10) / 2)));
+                println(chalk.green(" ".repeat((width - 10) / 2) + " MAIN MENU" + " ".repeat((width - 10) / 2)));
                 println()
                 
                 let idx = 0;
@@ -45,9 +45,9 @@ export function menu(callback) {
                     idx += 1;
                     
                     if (selected) {
-                        line += colors.white(colors.bold(cmd));
+                        line += chalk.white.bold(cmd);
                     } else  {
-                        line += colors.gray(cmd);
+                        line += chalk.gray(cmd);
                     }
                     
                     println(line);
@@ -114,6 +114,10 @@ export function selection(length, printer) {
             } else {
                 if (char == "[") {
                     cont.special = true;
+                } else if (char == "w") {
+                    cont.index = rotate(cont.index - 1, 0, length - 1);
+                } else if (char == "s") {
+                    cont.index = rotate(cont.index + 1, 0, length - 1);
                 } else if (char == " ") {
                     cont.selected = true;
                 }
@@ -150,24 +154,24 @@ export function ingame(world, commandCallback, calcTurnCallback) {
                 let tileColor;
                 if (tile == mazes.types.stone) {
                     tileChar = "_";
-                    tileColor = colors.gray;
+                    tileColor = chalk.gray;
                 } else if (tile == mazes.types.wall) {
                     tileChar = "#";
                     tileColor = function (str) {
-                        return colors.black(colors.italic(colors.bold(str)));
+                        return chalk.black.italic.bold(str);
                     };
                 }
                 
                 if (visited) {
                     if (world.player[0] == x && world.player[1] == y) {
-                        print(colors.green(colors.bold("$")));
+                        print(chalk.green.bold("$"));
                     } else if (world.maze.end[0] == x && world.maze.end[1] == y) {
-                        print(colors.yellow(colors.bold("!")));
+                        print(chalk.yellow.bold("!"));
                     } else {
                         print(tileColor(tileChar));
                     }
                 } else {
-                    print(colors.white("?"));
+                    print(chalk.white("?"));
                 }
             }
             
@@ -234,28 +238,26 @@ export function ingame(world, commandCallback, calcTurnCallback) {
                 let tileColor;
                 if (tile == mazes.types.stone) {
                     tileName = "  Stone  ";
-                    tileColor = colors.gray;
+                    tileColor = chalk.gray;
                 } else if (tile == mazes.types.wall) {
                     tileName = "   Wall  ";
-                    tileColor = function (str) {
-                        return colors.black(colors.italic(colors.bold(str)));
-                    };
+                    tileColor = chalk.black.italic.bold
                 }
                 
                 printVerticalLine();
                 
                 if (visited) {
                     if (world.maze.end[0] == x && world.maze.end[1] == y) {
-                        lines[offset + 4] += colors.yellow(colors.bold(tileName));
+                        lines[offset + 4] += chalk.yellow.bold(tileName);
                     } else {
                         lines[offset + 4] += tileColor(tileName);
                     }
                 } else {
-                    lines[offset + 4] += colors.white(" <_____> ");
+                    lines[offset + 4] += chalk.white(" <_____> ");
                 }
                 
                 if (visited && tile == mazes.types.wall) {
-                    let fill = colors.black(colors.bold(" ####### "));
+                    let fill = chalk.black.bold(" ####### ");
                     lines[offset] += fill;
                     lines[offset + 1] += fill;
                     lines[offset + 2] += fill;
@@ -265,12 +267,10 @@ export function ingame(world, commandCallback, calcTurnCallback) {
                     let entityColor;
                     if (entity.type == worlds.entityTypes.player) {
                         entityName = "  Player ";
-                        entityColor = function (str) {
-                            return colors.green(colors.bold(str));
-                        };
+                        entityColor = chalk.green.bold
                     } else if (entity.type == worlds.entityTypes.item) {
                         entityName = "   Item  ";
-                        entityColor = colors.cyan;
+                        entityColor = chalk.cyan;
                     } else if (entity.type == worlds.entityTypes.enemy) {
                         let name = entity.props.name;
                         let size = name.length;
@@ -279,24 +279,20 @@ export function ingame(world, commandCallback, calcTurnCallback) {
                         } else {
                             entityName = " ".repeat((10 - size) >> 1) + name + " ".repeat((9 - size) >> 1);
                         }
-                        entityColor = function (str) {
-                            return colors.red(colors.italic(str));
-                        };
+                        entityColor = chalk.red.italic
                     } else {
                         entityName = " Unknown ";
-                        entityColor = function (str) {
-                            return colors.magenta(colors.bold(colors.italic(str)));
-                        };
+                        entityColor = chalk.magenta.bold.italic
                     }
                     
                     lines[offset] += entityColor(entityName);
-                    lines[offset + 1] += colors.magenta(" H: " + entity.props.health.toString().padEnd(4) + " ");
-                    lines[offset + 2] += colors.red(" D: " + entity.props.damage.toString().padEnd(4) + " ");
+                    lines[offset + 1] += chalk.redBright.bold(" H: " + entity.props.health.toString().padEnd(4) + " ");
+                    lines[offset + 2] += chalk.red(" D: " + entity.props.damage.toString().padEnd(4) + " ");
                     
                     if (!entity.props.speed || entity.props.speed == 1) {
                         lines[offset + 3] += "         ";
                     } else {
-                        lines[offset + 3] += colors.blue(" S: " + entity.props.speed.toString().padEnd(4) + " ");
+                        lines[offset + 3] += chalk.blue(" S: " + entity.props.speed.toString().padEnd(4) + " ");
                     }
                 } else {
                     lines[offset] += "         ";
@@ -356,16 +352,16 @@ export function ingame(world, commandCallback, calcTurnCallback) {
     while (cont.cont) {
         try {
             if (cont.help) {
-                println(colors.green("----- HELP ------"));
-                println(colors.cyan("--- CONTROLS ---"));
-                println(colors.cyan("  WASD / Arrow keys   : move around"));
+                println(chalk.green("----- HELP ------"));
+                println(chalk.cyan("--- CONTROLS ---"));
+                println(chalk.cyan("  WASD / Arrow keys   : move around"));
                 println();
-                println(colors.cyan("  M                   : open the minimap"));
+                println(chalk.cyan("  M                   : open the minimap"));
                 println();
-                println(colors.cyan("  E                   : exit the level"));
-                println(colors.cyan("  R                   : restart this level"));
-                println(colors.cyan("  H                   : print this help"));
-                println(colors.green("----- HELP ------"));
+                println(chalk.cyan("  E                   : exit the level"));
+                println(chalk.cyan("  R                   : restart this level"));
+                println(chalk.cyan("  H                   : print this help"));
+                println(chalk.green("----- HELP ------"));
             } else if (cont.map) {
                 printMap();
             } else {

@@ -16,7 +16,7 @@
   },
   "type": "module",
   "dependencies": {
-    "@colors/colors": "1.5.0",
+    "chalk": "5.0.1",
     "ansi-escapes": "5.0.0",
     "globby": "13.1.1",
     "readline-sync": "1.4.10"
