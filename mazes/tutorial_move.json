@@ -1,5 +1,5 @@
 {
-    "name": "Bewegungs Tutorial",
+    "name": "Bewegungstutorial",
     "dependencies": [ ],
     "tutorial": true,
     "order": "tut-0",

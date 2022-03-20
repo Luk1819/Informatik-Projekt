@@ -1,5 +1,5 @@
 {
-    "name": "Gegner Tutorial",
+    "name": "Gegnertutorial",
     "dependencies": [ "tutorial_fight" ],
     "tutorial": true,
     "order": "tut-2",

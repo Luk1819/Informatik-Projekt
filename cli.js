@@ -1,4 +1,4 @@
-import { print, println, rotate, clear, clamp } from "./utils.js";
+import { print, println, rotate, clear, clamp, storage } from "./utils.js";
 import * as mazes from "./maze.js";
 import colors from "@colors/colors/safe.js";
 import * as readline from "readline-sync";
@@ -26,8 +26,10 @@ export function menu(callback) {
     while (cont.cont) {
         try {
             const selected = selection(3, function (index) {
-                println("-".repeat(15));
-                println(colors.green("   MAIN MENU   "));
+                let width = 50;
+                println("-".repeat(width));
+                println(colors.green(" ".repeat((width - 10) / 2) + " MAIN MENU" + " ".repeat((width - 10) / 2)));
+                println()
                 
                 let idx = 0;
                 
@@ -51,11 +53,14 @@ export function menu(callback) {
                     println(line);
                 }
                 
-                printCommand("start");
-                printCommand("select");
-                printCommand("exit")
+                let level = mazes.mazes[storage.get().mazeId];
                 
-                println("-".repeat(15));
+                printCommand("Start the selected level");
+                printCommand("Select a level (current: " + level.data.name + ")");
+                printCommand("Exit the game")
+    
+                println()
+                println("-".repeat(width));
             });
             
             if (selected == 0) {
@@ -133,12 +138,6 @@ export const igcommands = {
 };
 
 export function ingame(world, commandCallback, calcTurnCallback) {
-    let cont = {
-        cont: true,
-        didMove: false
-    };
-    let special = false;
-    
     function printMap() {
         let size = world.maze.size;
         
@@ -346,6 +345,12 @@ export function ingame(world, commandCallback, calcTurnCallback) {
         }
     }
     
+    let cont = {
+        cont: true,
+        didMove: false
+    };
+    let special = false;
+    
     clear.reset();
     
     while (cont.cont) {
@@ -449,7 +454,7 @@ export function ingame(world, commandCallback, calcTurnCallback) {
                     }
                 }
                 
-                if (cont.didMove) {
+                if (!special && cont.didMove) {
                     cont = {...cont, ...calcTurnCallback()};
                 }
             }

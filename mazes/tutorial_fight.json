@@ -1,5 +1,5 @@
 {
-    "name": "Kampf Tutorial",
+    "name": "Kampftutorial",
     "dependencies": [ "tutorial_move" ],
     "tutorial": true,
     "order": "tut-1",

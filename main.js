@@ -12,8 +12,6 @@ await loot.discover();
 await enemies.discover();
 await maze.discover();
 
-let mazeId = "tutorial_move";
-
 let res = {
     start: true,
 };
@@ -41,7 +39,6 @@ while (res.start) {
                 levels: 0,
                 tutorials: 0,
             };
-            
             for (let id in maze.mazes) {
                 let level = maze.mazes[id];
                 
@@ -80,7 +77,7 @@ while (res.start) {
             
             let sorter = function (a, b) {
                 return a.order.localeCompare(b.order);
-            }
+            };
             levels.sort(sorter);
             tutorials.sort(sorter);
             
@@ -88,6 +85,11 @@ while (res.start) {
             const levelCount = levels.length;
             
             let chosen = cli.selection(available.tutorials + available.levels, function (index) {
+                let width = 40;
+                println("-".repeat(width));
+                println(colors.yellow(" ".repeat((width - 20) / 2) + "   LEVEL SELECTION  " + " ".repeat((width - 20) / 2)));
+                println();
+                
                 let idx = 0;
                 
                 function printArray(array) {
@@ -124,10 +126,14 @@ while (res.start) {
                     }
                 }
                 
-                println("Tutorials:");
+                println(colors.yellow("      Tutorials"));
                 printArray(tutorials);
-                println("Levels:");
+                println();
+                println(colors.yellow("      Levels"));
                 printArray(levels);
+                
+                println();
+                println("-".repeat(width));
             });
             
             if (chosen != -1) {
@@ -141,14 +147,13 @@ while (res.start) {
                     }
                     if (entry.available) {
                         if (idx == chosen) {
-                            break
+                            break;
                         }
                         idx += 1;
                     }
                 }
-    
-                mazeId = entry.id;
-                println(`Loaded maze ${entry.name}!`);
+                
+                storage.get().mazeId = entry.id;
             }
         }
         
@@ -161,7 +166,7 @@ while (res.start) {
         restart: res.start,
     };
     
-    let currMaze = maze.mazes[mazeId];
+    let currMaze = maze.mazes[storage.get().mazeId];
     
     while (cont.restart) {
         let currWorld = world.create(currMaze);
@@ -252,8 +257,8 @@ while (res.start) {
             printSep(8);
             
             let completed = storage.get().completed;
-            if (!completed.includes(mazeId)) {
-                completed.push(mazeId);
+            if (!completed.includes(storage.get().mazeId)) {
+                completed.push(storage.get().mazeId);
             }
         }
     }

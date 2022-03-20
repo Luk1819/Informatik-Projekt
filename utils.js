@@ -77,12 +77,19 @@ export class Position {
 
 class Storage {
     completed;
+    mazeId;
+    
     
     constructor(data=null) {
-        if (data) {
-            this.completed = data.completed;
+        this.loadKey(data, "completed", []);
+        this.loadKey(data, "mazeId", "tutorial_move");
+    }
+    
+    loadKey(data, key, def) {
+        if (data && data[key]) {
+            this[key] = data[key];
         } else {
-            this.completed = [];
+            this[key] = def;
         }
     }
 }
