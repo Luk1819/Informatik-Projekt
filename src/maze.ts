@@ -1,9 +1,10 @@
 import {JsonInitialized, Position, List, readDataFolder} from "./utils.js";
 import {World} from "./world.js"
-import {enemies, Enemy} from "./enemies";
+
+type TileDefinition<T> = { [id: (number | string)]: T };
 
 export class Maze {
-    array: Tile[][];
+    array: TileData[][];
     start: Position;
     end: Position;
     enemies: {
@@ -18,7 +19,7 @@ export class Maze {
 
     data: MazeData;
 
-    constructor(array: number[][], start: [number, number], end: [number, number], enemies: { pos: [number, number], type: number }[], size: [number, number], player: { damage: number; hp: number }, tiles: { [id: string]: any } = {}, data: MazeData = {
+    constructor(array: (number | string)[][], start: [number, number], end: [number, number], enemies: { pos: [number, number], type: number }[], size: [number, number], player: { damage: number; hp: number }, tiles: TileDefinition<any> = {}, data: MazeData = {
         name: "",
         dependencies: [],
         tutorial: false,
@@ -28,12 +29,10 @@ export class Maze {
         this.array = List(size[0], function (x) {
             return List(size[1], function (y) {
                 let tile = array[x][y];
-                if (tile == Type.wall) {
-                    return new Tile(Type.wall, [x, y])
-                } else if (tile == Type.stone) {
-                    return new Tile(Type.stone, [x, y])
+                if (tile in defaultTiles) {
+                    return defaultTiles[tile]
                 } else {
-                    return new Tile(Type.custom, [x, y], tiles[tile])
+                    return new TileData(tiles[tile]);
                 }
             });
         });
@@ -49,16 +48,8 @@ export class Maze {
         return this.array[x][y];
     }
 
-    set(x: number, y: number, value: Tile) {
+    set(x: number, y: number, value: TileData) {
         this.array[x][y] = value;
-    }
-
-    isWall(x: number, y: number) {
-        return x >= 0 && x < this.size[0] && y >= 0 && y < this.size[1] && this.get(x, y).type == Type.wall;
-    }
-
-    tick(world: World) {
-        this.array.forEach(row => row.forEach(tile => tile.tick(world)));
     }
 }
 
@@ -70,41 +61,67 @@ type MazeData = {
     text: string[]
 }
 
-class Tile {
-    type: Type;
-    data?: TileData;
+export class Tile {
+    data: TileDataInstance;
     pos: Position;
 
-    constructor(type: Type, pos: [number, number] | Position, data: any | null = null) {
-        this.type = type;
+    constructor(pos: [number, number] | Position, data: TileData) {
         this.pos = new Position(pos);
-        if (type == Type.custom) {
-            this.data = new TileData(data, this.pos);
-        }
+        this.data = data.create(this.pos);
     }
 
     tick(world: World) {
-        if (this.type == Type.custom) {
-            this.data!.tick(world);
-        }
+        this.data.tick(world);
     }
 }
 
 class TileData extends JsonInitialized {
-    spawner!: TileSpawnerData;
+    spawner!: (pos: Position) => TileSpawnerData;
+    wall!: boolean;
+    name!: string;
+    mapName!: string;
 
-    constructor(data: any | null, pos: Position) {
+    constructor(data: any = {}) {
         super();
         this.loadData(data, {
             spawner: {
                 default: null,
-                creator: v => new TileSpawnerData(v, pos),
+                creator: v => ((pos: Position) => new TileSpawnerData(v, pos)),
             },
+            wall: {
+                default: false,
+            },
+            name: {
+                default: "{bold.italic.rgb(255,100,0) unknown}"
+            },
+            mapName: {
+                default: "{bold.italic.rgb(255,100,0) %}"
+            }
         });
     }
 
+    create(pos: Position) {
+        return new TileDataInstance(this, pos);
+    }
+}
+
+class TileDataInstance {
+    spawner: TileSpawnerData;
+    wall: boolean;
+    name: string;
+    mapName: string;
+    pos: Position;
+
+    constructor(data: TileData, pos: Position) {
+        this.spawner = data.spawner(pos);
+        this.wall = data.wall;
+        this.name = data.name;
+        this.mapName = data.mapName;
+        this.pos = pos;
+    }
+
     tick(world: World) {
-        this.spawner.tick(world);
+        this.spawner.tick(this, world);
     }
 }
 
@@ -117,7 +134,7 @@ class TileSpawnerData extends JsonInitialized {
     constructor(data: any | null, pos: Position) {
         super();
         this.loadData(data, {
-            entity: {
+            enemy: {
                 default: -1,
             },
             cooldown: {
@@ -128,7 +145,11 @@ class TileSpawnerData extends JsonInitialized {
         this.pos = pos;
     }
 
-    tick(world: World) {
+    tick(tileData: TileDataInstance, world: World) {
+        if (tileData.wall) {
+            return;
+        }
+
         if (this.enemy != -1) {
             if (this.cooldownLeft <= 0 && world.get(this.pos.x, this.pos.y) == null) {
                 world.set(this.pos.x, this.pos.y, world.createEnemy(this.enemy));
@@ -140,22 +161,28 @@ class TileSpawnerData extends JsonInitialized {
     }
 }
 
-export enum Type {
-    wall,
-    stone,
-    custom
-}
-
 export function create(x: number, y: number) {
-    let array: number[][] = [];
+    let array: (number | string)[][] = [];
     for (let i = 0; i < x; i++) {
         let layer: number[] = [];
         for (let j = 0; j < y; j++) {
-            layer.push(Type.wall);
+            layer.push(0);
         }
         array.push(layer);
     }
     return new Maze(array, [0, 0], [x - 1, y - 1], [], [x, y], {hp: 100, damage: 24});
+}
+
+const defaultTiles: TileDefinition<TileData> = {
+    0: new TileData({
+        wall: true,
+        name: "{black.italic.bold Wall}",
+        mapName: "{black.italic.bold #}"
+    }),
+    1: new TileData({
+        name: "{gray Stone}",
+        mapName: "{gray _}"
+    })
 }
 
 export const mazes: { [id: string]: Maze } = {};

@@ -236,6 +236,7 @@ while (res.start) {
             };
         }, function () {
             currWorld.enemyMove();
+            currWorld.tick();
             
             if (currWorld.isFinished()) {
                 return {

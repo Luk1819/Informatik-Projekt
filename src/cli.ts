@@ -1,6 +1,7 @@
 import {print, println, rotate, clear, clamp, storage} from "./utils.js";
 import * as mazes from "./maze.js";
 import chalk from "chalk";
+import {template} from "chalk-template";
 import * as readline from "readline-sync";
 import * as worlds from "./world.js";
 import {World} from "./world.js";
@@ -128,20 +129,10 @@ export function ingame<T>(world: World, commandCallback: (InGameCommand) => (T &
 
         for (let x = 0; x < size[0]; x++) {
             for (let y = 0; y < size[1]; y++) {
-                let tile = world.maze.get(x, y);
+                let tile = world.tileAt(x, y);
                 let visited = world.isVisited(x, y);
 
-                let tileChar;
-                let tileColor;
-                if (tile.type == mazes.Type.stone) {
-                    tileChar = "_";
-                    tileColor = chalk.gray;
-                } else if (tile.type == mazes.Type.wall) {
-                    tileChar = "#";
-                    tileColor = function (str) {
-                        return chalk.black.italic.bold(str);
-                    };
-                }
+                let tileText = template(tile.data.mapName);
 
                 if (visited) {
                     if (world.player.x == x && world.player.y == y) {
@@ -149,7 +140,7 @@ export function ingame<T>(world: World, commandCallback: (InGameCommand) => (T &
                     } else if (world.maze.end[0] == x && world.maze.end[1] == y) {
                         print(chalk.yellow.bold("!"));
                     } else {
-                        print(tileColor(tileChar));
+                        print(tileText);
                     }
                 } else {
                     print(chalk.white("?"));
@@ -210,34 +201,37 @@ export function ingame<T>(world: World, commandCallback: (InGameCommand) => (T &
             }
 
             for (let y = boundsTopLeft[1]; y < boundsBottomRight[1]; y++) {
-                let tile = world.maze.get(x, y);
+                let tile = world.tileAt(x, y);
                 let entity = world.get(x, y);
                 let visible = world.isVisible(x, y);
                 let visited = world.isVisited(x, y);
 
-                let tileName;
-                let tileColor;
-                if (tile.type == mazes.Type.stone) {
-                    tileName = "  Stone  ";
-                    tileColor = chalk.gray;
-                } else if (tile.type == mazes.Type.wall) {
-                    tileName = "   Wall  ";
-                    tileColor = chalk.black.italic.bold
+                function correctLength(str: string, newSize: number, oldLength?: number) {
+                    let size = oldLength || str.length;
+                    if (size > 9) {
+                        return str.substring(0, newSize - 3) + "...";
+                    } else {
+                        return " ".repeat((newSize + 1 - size) >> 1) + str + " ".repeat((newSize - size) >> 1);
+                    }
                 }
+
+                let cleanedTileName = tile.data.name.replace(/{[\w.]* ([a-zA-Z0-9 .-_]*)}/, "$1");
+                let tileName = correctLength(tile.data.name, 9, cleanedTileName.length)
+                let tileText = template(tileName);
 
                 printVerticalLine();
 
                 if (visited) {
                     if (world.maze.end.x == x && world.maze.end.y == y) {
-                        lines[offset + 4] += chalk.yellow.bold(tileName);
+                        lines[offset + 4] += chalk.yellow.bold(correctLength(cleanedTileName, 9));
                     } else {
-                        lines[offset + 4] += tileColor(tileName);
+                        lines[offset + 4] += tileText;
                     }
                 } else {
                     lines[offset + 4] += chalk.white(" <_____> ");
                 }
 
-                if (visited && tile.type == mazes.Type.wall) {
+                if (visited && tile.data.wall) {
                     let fill = chalk.black.bold(" ####### ");
                     lines[offset] += fill;
                     lines[offset + 1] += fill;
@@ -253,13 +247,7 @@ export function ingame<T>(world: World, commandCallback: (InGameCommand) => (T &
                         entityName = "   Item  ";
                         entityColor = chalk.cyan;
                     } else if (entity.type == worlds.EntityType.enemy) {
-                        let name = entity.props.name;
-                        let size = name.length;
-                        if (size > 9) {
-                            entityName = name.substring(0, 6) + "...";
-                        } else {
-                            entityName = " ".repeat((10 - size) >> 1) + name + " ".repeat((9 - size) >> 1);
-                        }
+                        entityName = correctLength(entity.props.name, 9)
                         entityColor = chalk.red.italic
                     } else {
                         entityName = " Unknown ";

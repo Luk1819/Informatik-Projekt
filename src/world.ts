@@ -1,8 +1,8 @@
 import * as enemies from "./enemies.js";
 import * as mazes from "./maze.js";
 import * as loot from "./loot.js";
-import {Position} from "./utils.js";
-import {Maze} from "./maze.js";
+import {List, Position} from "./utils.js";
+import {Maze, Tile} from "./maze.js";
 import {EnemyInstance} from "./enemies.js";
 
 export enum Direction {
@@ -20,6 +20,7 @@ export enum EntityType {
 
 export class World {
     maze: mazes.Maze;
+    tiles: Tile[][];
     entities: { [x: number]: { [y: number]: { type: number, props: any } | null } };
     player: Position;
     visited: { [x: number]: { [y: number]: boolean } };
@@ -29,6 +30,12 @@ export class World {
 
     constructor(maze: Maze) {
         this.maze = maze;
+        this.tiles = List(maze.size[0], function (x) {
+            return List(maze.size[1], function (y) {
+                let tile = maze.get(x, y);
+                return new Tile([x, y], tile)
+            });
+        });
         this.entities = {};
         this.visited = {};
         let {x, y} = maze.start;
@@ -119,17 +126,17 @@ export class World {
             return true;
         } else if (Math.abs(x - px) == 2) {
             if (Math.abs(y - py) < 1) {
-                return !this.maze.isWall((x + px) / 2, y);
+                return !this.isWall((x + px) / 2, y);
             } else if (Math.abs(y - py) == 1) {
-                return !this.maze.isWall((x + px) / 2, py) && (!this.maze.isWall((x + px) / 2, y) || !this.maze.isWall(x, py));
+                return !this.isWall((x + px) / 2, py) && (!this.isWall((x + px) / 2, y) || !this.isWall(x, py));
             } else { // Math.abs(y - py) == 2
-                return !this.maze.isWall((x + px) / 2, (y + py) / 2);
+                return !this.isWall((x + px) / 2, (y + py) / 2);
             }
         } else { // Math.abs(y - py) == 2
             if (Math.abs(x - px) < 1) {
-                return !this.maze.isWall(x, (y + py) / 2);
+                return !this.isWall(x, (y + py) / 2);
             } else if (Math.abs(x - px) == 1) {
-                return !this.maze.isWall(px, (y + py) / 2) && (!this.maze.isWall(x, (y + py) / 2) || !this.maze.isWall(px, y));
+                return !this.isWall(px, (y + py) / 2) && (!this.isWall(x, (y + py) / 2) || !this.isWall(px, y));
             } else { // Math.abs(x - px) == 2 (Should never happen, as it fits the case above
                 throw Error("Illegal state: This should never happen!");
             }
@@ -155,6 +162,18 @@ export class World {
             this.entities[x] = {};
             this.entities[x][y] = value;
         }
+    }
+
+    tileAt(x: number, y: number) {
+        return this.tiles[x][y];
+    }
+
+    isWall(x: number, y: number) {
+        return x >= 0 && x < this.maze.size[0] && y >= 0 && y < this.maze.size[1] && this.tileAt(x, y).data.wall;
+    }
+
+    tick() {
+        this.tiles.forEach(row => row.forEach(tile => tile.tick(this)));
     }
 
     enemyMove() {
@@ -230,9 +249,9 @@ export class World {
             }
 
             let target = this.get(newx, newy);
-            let targetTile = this.maze.get(newx, newy);
+            let targetTile = this.tileAt(newx, newy);
 
-            if ((target === null || target.type == EntityType.item) && targetTile.type != mazes.Type.wall) {
+            if ((target === null || target.type == EntityType.item) && !targetTile.data.wall) {
                 this.set(x, y, null);
                 this.set(newx, newy, player);
                 this.player = new Position(newx, newy);
