@@ -1,3 +1,7 @@
 node_modules/
 package-lock.json
-/data
+data/
+out/
+bin/
+# TS -incremental file
+tsconfig.tsbuildinfo

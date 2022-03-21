@@ -16,5 +16,10 @@
     "player": {
         "hp": 100,
         "damage": 24
-    }
+    },
+    "text": [
+        "Move using", "WASD or the", "Arrow keys.",
+        "",
+        "Reach the", "yellow marked", "tile to win."
+    ]
 }

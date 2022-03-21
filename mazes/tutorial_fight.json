@@ -19,5 +19,10 @@
     "player": {
         "hp": 100,
         "damage": 24
-    }
+    },
+    "text": [
+        "Attack", "enemies by", "walking into", "them.",
+        "",
+        "These enemies", "are only", "dummies", "that don't", "attack back."
+    ]
 }

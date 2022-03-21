@@ -20,5 +20,9 @@
     "player": {
         "hp": 100,
         "damage": 24
-    }
+    },
+    "text": [
+        "These enemies", "attack back.",
+        "They can also", "move and you", "should kill", "them before", "they kill you!"
+    ]
 }
