@@ -9,7 +9,7 @@ export type EnemyInstance = {
     loot: string | null
 }
 
-class Enemy {
+export class Enemy {
     type: number;
     health: number;
     damage: number;

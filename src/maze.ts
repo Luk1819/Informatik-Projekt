@@ -1,5 +1,6 @@
 import {JsonInitialized, Position, List, readDataFolder} from "./utils.js";
 import {World} from "./world.js"
+import {enemies, Enemy} from "./enemies";
 
 export class Maze {
     array: Tile[][];
@@ -78,7 +79,7 @@ class Tile {
         this.type = type;
         this.pos = new Position(pos);
         if (type == Type.custom) {
-            this.data = new TileData(data, pos);
+            this.data = new TileData(data, this.pos);
         }
     }
 
@@ -92,7 +93,7 @@ class Tile {
 class TileData extends JsonInitialized {
     spawner!: TileSpawnerData;
 
-    constructor(data, pos) {
+    constructor(data: any | null, pos: Position) {
         super();
         this.loadData(data, {
             spawner: {
@@ -108,20 +109,33 @@ class TileData extends JsonInitialized {
 }
 
 class TileSpawnerData extends JsonInitialized {
-    entity;
+    enemy!: number;
+    cooldown!: number;
+    cooldownLeft: number
+    pos: Position;
 
-    constructor(data, pos) {
+    constructor(data: any | null, pos: Position) {
         super();
         this.loadData(data, {
             entity: {
                 default: -1,
             },
+            cooldown: {
+                default: 4,
+            }
         });
+        this.cooldownLeft = this.cooldown;
+        this.pos = pos;
     }
 
     tick(world: World) {
-        if (this.entity != -1) {
-
+        if (this.enemy != -1) {
+            if (this.cooldownLeft <= 0 && world.get(this.pos.x, this.pos.y) == null) {
+                world.set(this.pos.x, this.pos.y, world.createEnemy(this.enemy));
+                this.cooldownLeft = this.cooldown;
+            } else {
+                this.cooldownLeft -= 1;
+            }
         }
     }
 }
