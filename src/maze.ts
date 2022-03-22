@@ -177,6 +177,8 @@ class TileSpawnerData extends JsonInitialized {
 
 export class TilePortalData extends JsonInitialized {
     id!: string | -1;
+    isTarget!: boolean;
+    isSource!: boolean;
     pos: Position;
     static portals: { [id: string]: Position[] } = {};
     static teleported: boolean = false;
@@ -186,10 +188,18 @@ export class TilePortalData extends JsonInitialized {
         this.loadData(data, {
             id: {
                 default: -1,
+            },
+            isTarget: {
+                default: true,
+            },
+            isSource: {
+                default: true,
             }
         });
         this.pos = pos;
-        TilePortalData.registerPortal(this);
+        if (this.isTarget) {
+            TilePortalData.registerPortal(this);
+        }
     }
 
     static registerPortal(portal: TilePortalData) {
@@ -213,7 +223,7 @@ export class TilePortalData extends JsonInitialized {
     }
 
     tick(tileData: TileDataInstance, world: World) {
-        if (this.id != -1 && !TilePortalData.teleported && Position.equals(world.player, this.pos)) {
+        if (this.isSource && this.id != -1 && !TilePortalData.teleported && Position.equals(world.player, this.pos)) {
             let target = TilePortalData.getTarget(this)
             if (target != null && world.get(target.x, target.y) == null) {
                 let {x, y} = world.player;
