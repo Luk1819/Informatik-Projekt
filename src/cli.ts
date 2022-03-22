@@ -215,7 +215,7 @@ export function ingame<T>(world: World, commandCallback: (InGameCommand) => (T &
                     }
                 }
 
-                let cleanedTileName = tile.data.name.replace(/{[\w.]* ([a-zA-Z0-9 .-_]*)}/, "$1");
+                let cleanedTileName = tile.data.name.replace(/{[\w.(),]* ([a-zA-Z0-9 .-_]*)}/, "$1");
                 let tileName = correctLength(tile.data.name, 9, cleanedTileName.length)
                 let tileText = template(tileName);
 
