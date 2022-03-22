@@ -255,13 +255,13 @@ export function ingame<T>(world: World, commandCallback: (InGameCommand) => (T &
                     }
 
                     lines[offset] += entityColor(entityName);
-                    lines[offset + 1] += chalk.redBright.bold(" H: " + entity.props.health.toString().padEnd(4) + " ");
-                    lines[offset + 2] += chalk.red(" D: " + entity.props.damage.toString().padEnd(4) + " ");
+                    lines[offset + 1] += chalk.redBright.bold(" ❤: " + entity.props.health.toString().padEnd(4) + " ");
+                    lines[offset + 2] += chalk.red(" ⚔: " + entity.props.damage.toString().padEnd(4) + " ");
 
                     if (!entity.props.speed || entity.props.speed == 1) {
                         lines[offset + 3] += "         ";
                     } else {
-                        lines[offset + 3] += chalk.blue(" S: " + entity.props.speed.toString().padEnd(4) + " ");
+                        lines[offset + 3] += chalk.blue(" 🚄: " + entity.props.speed.toString().padEnd(4) + " ");
                     }
                 } else {
                     lines[offset] += "         ";

@@ -24,13 +24,18 @@
         "damage": 24
     },
     "tiles": {
-        "s": {
+        "2": {
             "spawner": {
                 "enemy": 3,
                 "cooldown": 2
             },
             "name": "{bold.green Spawner}",
             "mapName": "{bold.green 3}"
+        },
+        "3": {
+            "wall": true,
+            "name": "{bold.rgb(235,143,52) Lava}",
+            "mapName": "{bold.rgb(235,143,52) #}"
         }
     }
 }

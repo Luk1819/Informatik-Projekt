@@ -78,6 +78,7 @@ export class Tile {
 class TileData extends JsonInitialized {
     spawner!: (pos: Position) => TileSpawnerData;
     wall!: boolean;
+    blocksVision!: boolean;
     name!: string;
     mapName!: string;
 
@@ -89,6 +90,9 @@ class TileData extends JsonInitialized {
                 creator: v => ((pos: Position) => new TileSpawnerData(v, pos)),
             },
             wall: {
+                default: false,
+            },
+            blocksVision: {
                 default: false,
             },
             name: {
@@ -108,6 +112,7 @@ class TileData extends JsonInitialized {
 class TileDataInstance {
     spawner: TileSpawnerData;
     wall: boolean;
+    blocksVision: boolean;
     name: string;
     mapName: string;
     pos: Position;
@@ -115,6 +120,7 @@ class TileDataInstance {
     constructor(data: TileData, pos: Position) {
         this.spawner = data.spawner(pos);
         this.wall = data.wall;
+        this.blocksVision = data.blocksVision;
         this.name = data.name;
         this.mapName = data.mapName;
         this.pos = pos;
@@ -176,6 +182,7 @@ export function create(x: number, y: number) {
 const defaultTiles: TileDefinition<TileData> = {
     0: new TileData({
         wall: true,
+        blocksVision: true,
         name: "{black.italic.bold Wall}",
         mapName: "{black.italic.bold #}"
     }),

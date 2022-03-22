@@ -126,17 +126,17 @@ export class World {
             return true;
         } else if (Math.abs(x - px) == 2) {
             if (Math.abs(y - py) < 1) {
-                return !this.isWall((x + px) / 2, y);
+                return !this.blocksVision((x + px) / 2, y);
             } else if (Math.abs(y - py) == 1) {
-                return !this.isWall((x + px) / 2, py) && (!this.isWall((x + px) / 2, y) || !this.isWall(x, py));
+                return !this.blocksVision((x + px) / 2, py) && (!this.blocksVision((x + px) / 2, y) || !this.blocksVision(x, py));
             } else { // Math.abs(y - py) == 2
-                return !this.isWall((x + px) / 2, (y + py) / 2);
+                return !this.blocksVision((x + px) / 2, (y + py) / 2);
             }
         } else { // Math.abs(y - py) == 2
             if (Math.abs(x - px) < 1) {
-                return !this.isWall(x, (y + py) / 2);
+                return !this.blocksVision(x, (y + py) / 2);
             } else if (Math.abs(x - px) == 1) {
-                return !this.isWall(px, (y + py) / 2) && (!this.isWall(x, (y + py) / 2) || !this.isWall(px, y));
+                return !this.blocksVision(px, (y + py) / 2) && (!this.isWablocksVisionll(x, (y + py) / 2) || !this.blocksVision(px, y));
             } else { // Math.abs(x - px) == 2 (Should never happen, as it fits the case above
                 throw Error("Illegal state: This should never happen!");
             }
@@ -170,6 +170,10 @@ export class World {
 
     isWall(x: number, y: number) {
         return x >= 0 && x < this.maze.size[0] && y >= 0 && y < this.maze.size[1] && this.tileAt(x, y).data.wall;
+    }
+
+    blocksVision(x: number, y: number) {
+        return x >= 0 && x < this.maze.size[0] && y >= 0 && y < this.maze.size[1] && this.tileAt(x, y).data.blocksVision;
     }
 
     tick() {
