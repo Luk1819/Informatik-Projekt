@@ -218,7 +218,7 @@ class TilePortalData extends JsonInitialized {
                 let {x, y} = world.player;
                 let player = world.get(x, y);
                 world.set(x, y, null);
-                world.set(target.x, target.y);
+                world.set(target.x, target.y, player);
                 world.player = target;
             }
         }
