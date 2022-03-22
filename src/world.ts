@@ -136,7 +136,7 @@ export class World {
             if (Math.abs(x - px) < 1) {
                 return !this.blocksVision(x, (y + py) / 2);
             } else if (Math.abs(x - px) == 1) {
-                return !this.blocksVision(px, (y + py) / 2) && (!this.isWablocksVisionll(x, (y + py) / 2) || !this.blocksVision(px, y));
+                return !this.blocksVision(px, (y + py) / 2) && (!this.blocksVision(x, (y + py) / 2) || !this.blocksVision(px, y));
             } else { // Math.abs(x - px) == 2 (Should never happen, as it fits the case above
                 throw Error("Illegal state: This should never happen!");
             }
