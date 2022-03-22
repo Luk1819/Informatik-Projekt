@@ -135,6 +135,7 @@ class TileDataInstance {
 
     tick(world: World) {
         this.spawner.tick(this, world);
+        this.portal.tick(this, world);
     }
 }
 
