@@ -4,6 +4,7 @@ import * as loot from "./loot.js";
 import {List, Position} from "./utils.js";
 import {Maze, Tile} from "./maze.js";
 import {EnemyInstance} from "./enemies.js";
+import { TilePortalData } from "./maze.js";
 
 export enum Direction {
     west,
@@ -177,6 +178,7 @@ export class World {
     }
 
     tick() {
+        TilePortalData.teleported = false;
         this.tiles.forEach(row => row.forEach(tile => tile.tick(this)));
     }
 
