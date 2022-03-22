@@ -221,6 +221,8 @@ export class TilePortalData extends JsonInitialized {
                 world.set(x, y, null);
                 world.set(target.x, target.y, player);
                 world.player = target;
+				
+				world.visit();
 
                 TilePortalData.teleported = true;
             }
