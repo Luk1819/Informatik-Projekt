@@ -1,0 +1,9 @@
+{
+    "type": 7,
+    "name": "Healpack",
+    "health": 1,
+    "damage": 0,
+    "speed": 0,
+    "loot": "healpackloot"
+
+}
