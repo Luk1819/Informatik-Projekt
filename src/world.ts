@@ -282,13 +282,14 @@ export class World {
 
                 if (target) {
                     let max = target.props.maxHealth;
-                    if (player.props.health < max) {
-                        if (max) {
+                    if (max) {
+                        if (player.props.health < max) {
                             player.props.health = Math.min(player.props.health + target.props.health, max);
-                        } else {
-                            player.props.health += target.props.health
                         }
+                    } else {
+                        player.props.health += target.props.health;
                     }
+                    
                     player.props.damage += target.props.damage || 0;
                 }
 
