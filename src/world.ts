@@ -137,7 +137,7 @@ export class World {
             } else { // Math.abs(y - py) == 2
                 return !this.blocksVision((x + px) / 2, (y + py) / 2) &&
                        !this.blocksVision((x + px) / 2, py) && !this.blocksVision(px, (y + py) / 2) &&
-                       !this.blocksVision(x, py) && !this.blocksVision(px, y);
+                       !this.blocksVision(x, (y + py) / 2) && !this.blocksVision((x + px) / 2, y);
             }
         } else { // Math.abs(y - py) == 2
             if (Math.abs(x - px) < 1) {
@@ -271,8 +271,9 @@ export class World {
                 this.visit();
 
                 if (target) {
-                    if (player.props.health + (target.props.health || 0) <= (target.props.maxHealth || Infinity)) {
-                        player.props.health += target.props.health || 0;
+                    let max = target.props.maxHealth || Infinity;
+                    if (!player.props.health > max) {
+                        player.props.health = Math.min(player.props.health + target.props.health, max);
                     }
                     player.props.damage += target.props.damage || 0;
                 }
