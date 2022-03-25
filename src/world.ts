@@ -124,14 +124,20 @@ export class World {
         } else if (Math.abs(x - px) > 2 || Math.abs(y - py) > 2) {
             return false;
         } else if (Math.abs(x - px) < 2 && Math.abs(y - py) < 2) {
-            return true;
+            if (Math.abs(x - px) == 1 && Math.abs(y - py) == 1) {
+                return !this.blocksVision(x, py) && !this.blocksVision(px, y)
+            } else {
+                return true;
+            }
         } else if (Math.abs(x - px) == 2) {
             if (Math.abs(y - py) < 1) {
                 return !this.blocksVision((x + px) / 2, y);
             } else if (Math.abs(y - py) == 1) {
-                return !this.blocksVision((x + px) / 2, py) && (!this.blocksVision((x + px) / 2, y) || !this.blocksVision(x, py));
+                return !this.blocksVision((x + px) / 2, py) && !(this.blocksVision((x + px) / 2, y) && this.blocksVision(x, py));
             } else { // Math.abs(y - py) == 2
-                return !this.blocksVision((x + px) / 2, (y + py) / 2);
+                return !this.blocksVision((x + px) / 2, (y + py) / 2) &&
+                       !this.blocksVision((x + px) / 2, py) && !this.blocksVision(px, (y + py) / 2) &&
+                       !this.blocksVision(x, py) && !this.blocksVision(px, y);
             }
         } else { // Math.abs(y - py) == 2
             if (Math.abs(x - px) < 1) {
