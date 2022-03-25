@@ -200,6 +200,12 @@ export function ingame<T>(world: World, commandCallback: (InGameCommand) => (T &
                 lines[offset + 4] += "|";
             }
 
+            function emptyLine(...off) {
+                for (let idx of off) {
+                    lines[offset + idx] += "         ";
+                }
+            }
+
             for (let y = boundsTopLeft[1]; y < boundsBottomRight[1]; y++) {
                 let tile = world.tileAt(x, y);
                 let entity = world.get(x, y);
@@ -256,18 +262,19 @@ export function ingame<T>(world: World, commandCallback: (InGameCommand) => (T &
 
                     lines[offset] += entityColor(entityName);
                     lines[offset + 1] += chalk.redBright.bold(" + : " + entity.props.health.toString().padEnd(3) + " ");
-                    lines[offset + 2] += chalk.red(" I : " + entity.props.damage.toString().padEnd(3) + " ");
+                    if (entity.props.damage) {
+                        lines[offset + 2] += chalk.red(" I : " + entity.props.damage.toString().padEnd(3) + " ");
+                    } else {
+                        emptyLine(2);
+                    }
 
                     if (!entity.props.speed || entity.props.speed == 1) {
-                        lines[offset + 3] += "         ";
+                        emptyLine(3);
                     } else {
                         lines[offset + 3] += chalk.blue(" ->: " + entity.props.speed.toString().padEnd(3) + " ");
                     }
                 } else {
-                    lines[offset] += "         ";
-                    lines[offset + 1] += "         ";
-                    lines[offset + 2] += "         ";
-                    lines[offset + 3] += "         ";
+                    emptyLine(0, 1, 2, 3);
                 }
             }
 
