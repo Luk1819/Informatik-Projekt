@@ -1,11 +1,14 @@
 import * as cli from "./cli.js";
-import {println, storage, containsAll, clear, randomize} from "./utils.js";
+import {println, storage, containsAll, clear, randomize, print} from "./utils.js";
 import * as maze from "./maze.js";
 import * as world from "./world.js";
 import * as enemies from "./enemies.js";
 import * as loot from "./loot.js";
+import * as module from "./module.js";
+import * as generator from "./generator.js";
 import chalk from "chalk";
 import {MenuCommand} from "./cli.js";
+import {Maze} from "./maze.js";
 
 randomize();
 
@@ -14,9 +17,11 @@ cli.start();
 loot.discover();
 enemies.discover();
 maze.discover();
+module.discover();
 
 let res = {
     start: true,
+    freeplay: false
 };
 
 storage.load();
@@ -147,6 +152,7 @@ while (res.start) {
                     print("    ");
                 }
                 println(chalk.red("Freeplay"));
+                println();
                 println(chalk.yellow("      Tutorials"));
                 printArray(tutorials);
                 println();
@@ -161,8 +167,10 @@ while (res.start) {
                 let entry;
                 let idx = 1;
                 if (chosen == 0) {
-                    entry = {
-                        id: "freeplay",
+                    return {
+                        cont: false,
+                        freeplay: true,
+                        start: true
                     };
                 } else {
                     for (let index = 0; index < tutorialCount + levelCount; index++) {
@@ -193,11 +201,24 @@ while (res.start) {
     let cont: { restart: boolean, survived?: boolean, exited?: boolean } = {
         restart: res.start,
     };
-    
-    let currMaze = maze.mazes[storage.get().mazeId];
+
+    let currMaze: Maze;
+    if (res.freeplay) {
+        currMaze = generator.createMaze(4, 4);
+    } else {
+        currMaze = maze.mazes[storage.get().mazeId];
+    }
     
     while (cont.restart) {
         let currWorld = world.create(currMaze);
+
+        if (res.freeplay) {
+            for (let x = 0; x < currMaze.size[0]; x++) {
+                for (let y = 0; y < currMaze.size[1]; y++) {
+                    currWorld.setVisited(x, y)
+                }
+            }
+        }
         
         cont = cli.ingame(currWorld, function (cmd) {
             let moved = false;

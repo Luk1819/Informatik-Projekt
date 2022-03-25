@@ -1,7 +1,7 @@
 import {JsonInitialized, Position, List, readDataFolder} from "./utils.js";
 import {World} from "./world.js"
 
-type TileDefinition<T> = { [id: (number | string)]: T };
+export type TileDefinition<T> = { [id: (number | string)]: T };
 
 export class Maze {
     array: TileData[][];
@@ -26,16 +26,7 @@ export class Maze {
         order: "custom",
         text: []
     }) {
-        this.array = List(size[0], function (x) {
-            return List(size[1], function (y) {
-                let tile = array[x][y];
-                if (tile in defaultTiles) {
-                    return defaultTiles[tile]
-                } else {
-                    return new TileData(tiles[tile]);
-                }
-            });
-        });
+        this.array = readTiles(size, array, tiles);
         this.start = new Position(start);
         this.end = new Position(end);
         this.enemies = enemies;
@@ -75,7 +66,7 @@ export class Tile {
     }
 }
 
-class TileData extends JsonInitialized {
+export class TileData extends JsonInitialized {
     spawner!: (pos: Position) => TileSpawnerData;
     portal!: (pos: Position) => TilePortalData;
     wall!: boolean;
@@ -236,6 +227,19 @@ export class TilePortalData extends JsonInitialized {
             }
         }
     }
+}
+
+export function readTiles(size: [number, number], array: (number | string)[][], tiles: TileDefinition<any>) {
+    return List(size[0], function (x) {
+        return List(size[1], function (y) {
+            let tile = array[x][y];
+            if (tile in defaultTiles) {
+                return defaultTiles[tile]
+            } else {
+                return new TileData(tiles[tile]);
+            }
+        });
+    });
 }
 
 export function create(x: number, y: number) {

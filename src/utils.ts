@@ -35,6 +35,10 @@ export function randomize() {
     }
 }
 
+export function randomElement<T>(array: Array<T>) {
+    return array[Math.floor(Math.random() * array.length)];
+}
+
 export class Clear {
     printed = [1];
 
@@ -72,6 +76,10 @@ export function clamp(value, min, max) {
 
 export function containsAll(source, target) {
     return source.every(v => target.includes(v));
+}
+
+export function arrayEquals(source, target) {
+    return containsAll(source, target) && containsAll(target, source);
 }
 
 export class Position {

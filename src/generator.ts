@@ -1,8 +1,9 @@
 import * as mazes from "./maze.js";
 import * as modules from "./module.js";
-import { Maze } from "./maze.js";
+import {Maze} from "./maze.js";
 import { Direction } from "./world.js";
 import { Module } from "./module.js";
+import {arrayEquals, Position, println, randomElement} from "./utils.js";
 
 type Cell = {
     x: number,
@@ -14,36 +15,32 @@ function generateNodes(width: number, height: number) {
         return cell.y * width + cell.x;
     }
 
-    function choose(array: Cell[]) {
-        return array[Math.floor(Math.random() * array.length)];
-    }
-
     function adjacent(first: Cell, second: Cell) {
-        return abs(b.x - a.x) + abs(b.y - a.y) == 1;
+        return Math.abs(first.x - second.x) + Math.abs(first.y - second.y) == 1;
     }
 
     let nodes = Array<Cell>(width * height);
-    for (var y = 0; y < height; y++) {
-		for (var x = 0; x < width; x++) {
-			var cell = { x, y };
+    for (let y = 0; y < height; y++) {
+		for (let x = 0; x < width; x++) {
+			let cell = { x, y };
 			nodes[locate(cell)] = cell;
 		}
 	}
 
-	var node = choose(nodes);
-	var stack = [node];
-	var maze = new Map<Cell, Array<Cell>>();
+	let node = randomElement(nodes);
+	let stack = [node];
+	let maze = new Map<Cell, Array<Cell>>();
 
-	for (var node of nodes) {
+	for (let node of nodes) {
 		maze.set(node, []);
 	}
 
 	while (node) {
-		var neighbors = nodes.filter(other => !maze.get(other).length && adjacent(node, other));
+		let neighbors = nodes.filter(other => !maze.get(other)!.length && adjacent(node, other));
 		if (neighbors.length) {
-			var neighbor = choose(neighbors);
-			maze.get(node).push(neighbor);
-			maze.get(neighbor).push(node);
+			let neighbor = randomElement(neighbors);
+			maze.get(node)!.push(neighbor);
+			maze.get(neighbor)!.push(node);
 			stack.unshift(neighbor);
 			node = neighbor;
 		} else {
@@ -55,36 +52,64 @@ function generateNodes(width: number, height: number) {
 	return maze;
 }
 
-function createMaze(width: number, height: number) {
-    let maze: Maze = mazes.create(height, width);
+export function createMaze(width: number, height: number) {
+    let maze = mazes.create(modules.size[0] * height, modules.size[1] * width);
     let nodes = generateNodes(width, height);
 
-    for (var [node, neighbors] of nodes) {
+    for (let [node, neighbors] of nodes) {
         let directions: Direction[] = [];
-		for (var neighbor of neighbors) {
+		for (let neighbor of neighbors) {
             if (neighbor.x == node.x + 1) {
                 directions.push(Direction.south);
             }
             if (neighbor.x == node.x - 1) {
                 directions.push(Direction.north);
             }
-            if (neighbor.y == node.y + 1) {
+            if (neighbor.y == node.y - 1) {
                 directions.push(Direction.west);
             }
             if (neighbor.y == node.y + 1) {
                 directions.push(Direction.east);
             }
 		}
-		createModule(maze, node, directions);
+		createModule(maze, node, directions, node.x == 0 && node.y == 0, node.x == height - 1 && node.y == width - 1);
 	}
+
+    return maze;
 }
 
 function filterModules(modules: Module[], directions: Direction[]) {
     return modules.filter(function (module: Module) {
-        return directions == modules.directions;
+        return arrayEquals(directions, module.directions);
     });
 }
 
-function createModule(maze: Maze, node: Cell, directions: Direction[]) {
-    let all = modules.modules;
+function createModule(maze: Maze, node: Cell, directions: Direction[], isStart: boolean, isEnd: boolean) {
+    let possible = filterModules(modules.modules, directions);
+    if (possible.length == 0) {
+        println("Failed to find module for directions [" + directions.map(Direction.toString) + "]");
+    }
+    let module = randomElement(possible);
+
+    let offset = [node.x * modules.size[0], node.y * modules.size[1]];
+    for (let x = 0; x < modules.size[0]; x++) {
+        for (let y = 0; y < modules.size[1]; y++) {
+            maze.set(offset[0] + x, offset[1] + y, module.maze[x][y]);
+        }
+    }
+
+    for (let entry of module.enemies) {
+        maze.enemies.push({
+            pos: [offset[0] + entry.pos[0], offset[1] + entry.pos[1]],
+            type: entry.type
+        });
+    }
+
+    let goalPos = new Position(offset[0] + module.goalPos[0], offset[1] + module.goalPos[1]);
+    if (isStart) {
+        maze.start = goalPos;
+    }
+    if (isEnd) {
+        maze.end = goalPos;
+    }
 }
