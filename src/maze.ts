@@ -213,10 +213,8 @@ export class TilePortalData extends JsonInitialized {
     }
 
     static getTarget(portal: TilePortalData) {
-        let all = TilePortalData.portals[portal.id];
-        if (all.length > 1) {
-            all = all.filter(v => v != portal.pos);
-        } else {
+        let all = TilePortalData.portals[portal.id].filter(v => !Position.equals(v, portal.pos));
+        if (all.length == 0) {
             return null;
         }
         return all[Math.floor(Math.random() * all.length)];

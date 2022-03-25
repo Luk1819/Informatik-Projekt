@@ -271,7 +271,9 @@ export class World {
                 this.visit();
 
                 if (target) {
-                    player.props.health += target.props.health || 0;
+                    if (player.props.health + (target.props.health || 0) <= (target.props.maxHealth || Infinity)) {
+                        player.props.health += target.props.health || 0;
+                    }
                     player.props.damage += target.props.damage || 0;
                 }
 
