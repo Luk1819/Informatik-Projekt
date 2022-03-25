@@ -8,11 +8,11 @@
     "Andrej",
     "Lukas"
   ],
-  "homepage": "https://baldu.at/geheim-projekt/",
+  "homepage": "https://baldu.at/maze/",
   "repository": "https://github.com/Luk1819/Informatik-Projekt",
   "bugs": "https://github.com/Luk1819/Informatik-Projekt/issues",
   "engines": {
-    "node": ">=14.0.0"
+    "node": ">=16.0.0"
   },
   "dependencies": {
     "ansi-escapes": "^5.0.0",

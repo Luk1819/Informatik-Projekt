@@ -12,5 +12,11 @@ You can install and play this Game on your PC. Here are the main steps:
 * run `npm start`.
 * Now you can play!
 
-# Contributors
+## Tutorial
+
+* press W/S or arrow keys for menu selection
+* space for lock in in menus
+* M for Mini-map
+
+## Contributors
 Noah, Lukas, Andrej
