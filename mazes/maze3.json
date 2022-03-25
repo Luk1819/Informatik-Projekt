@@ -78,7 +78,8 @@
         { "pos": [ 30, 17 ], "type": 4 },
         { "pos": [ 32, 7 ], "type": 3 },
         { "pos": [ 32, 28 ], "type": 1 },
-        { "pos": [ 26, 17 ], "type": 7 }
+        { "pos": [ 26, 17 ], "type": 7 },
+        { "pos": [ 36, 14 ], "type": 6 }
         
     ],
     "start": [ 6, 15 ],
@@ -131,19 +132,19 @@
         },
         "8": {
             "portal": {
-                "id": "5"
+                "id": "5",
+                "isTarget": false
             },
             "name": "{bold.rgb(0,255,255) Portal X}",
-            "mapName": "{bold.rgb(0,255,255) X}",
-            "isTarget": false
+            "mapName": "{bold.rgb(0,255,255) X}"
         },
         "9": {
             "portal": {
-                "id": "5"
+                "id": "5",
+                "isSource": false
             },
             "name": "{bold.rgb(0,255,255) Portal X}",
-            "mapName": "{bold.rgb(0,255,255) X}",
-            "isSource": false
+            "mapName": "{bold.rgb(0,255,255) X}"
         }
     }
 }
