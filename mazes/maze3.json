@@ -91,7 +91,7 @@
         "2": {
             "spawner": {
                 "enemy": 1,
-                "cooldown": 2
+                "cooldown": 4
             },
             "name": "{bold.green Spawner}",
             "mapName": "{bold.green 1}"
