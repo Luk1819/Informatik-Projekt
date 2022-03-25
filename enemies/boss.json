@@ -1,0 +1,8 @@
+{
+    "type": 6,
+    "name": "Boss",
+    "health": 210,
+    "damage": 32,
+    "speed": 1
+
+}
