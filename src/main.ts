@@ -93,16 +93,18 @@ while (res.start) {
             levels.sort(sorter);
             tutorials.sort(sorter);
             
+            const freeplayCount = 1;
             const tutorialCount = tutorials.length;
             const levelCount = levels.length;
+            const mazeCount = freeplayCount + tutorialCount + levelCount;
             
-            let chosen = cli.selection(available.tutorials + available.levels, function (index) {
+            let chosen = cli.selection(mazeCount, function (index: number) {
                 let width = 40;
                 println("-".repeat(width));
                 println(chalk.yellow(" ".repeat((width - 20) / 2) + "   LEVEL SELECTION  " + " ".repeat((width - 20) / 2)));
                 println();
                 
-                let idx = 0;
+                let idx = 1;
                 
                 function printArray(array: LevelPrintDef[]) {
                     for (let entry of array) {
@@ -138,6 +140,13 @@ while (res.start) {
                     }
                 }
                 
+                println(chalk.yellow("      Freeplay"));
+                if (index == 0) {
+                    print(" >> ");
+                } else {
+                    print("    ");
+                }
+                println(chalk.red("Freeplay"));
                 println(chalk.yellow("      Tutorials"));
                 printArray(tutorials);
                 println();
@@ -150,20 +159,27 @@ while (res.start) {
             
             if (chosen != -1) {
                 let entry;
-                let idx = 0;
-                for (let index = 0; index < tutorialCount + levelCount; index++) {
-                    if (index < tutorialCount) {
-                        entry = tutorials[index];
-                    } else {
-                        entry = levels[index - tutorialCount];
-                    }
-                    if (entry.available) {
-                        if (idx == chosen) {
-                            break;
+                let idx = 1;
+                if (chosen == 0) {
+                    entry = {
+                        id: "freeplay",
+                    };
+                } else {
+                    for (let index = 0; index < tutorialCount + levelCount; index++) {
+                        if (index < tutorialCount) {
+                            entry = tutorials[index];
+                        } else {
+                            entry = levels[index - tutorialCount];
                         }
-                        idx += 1;
+                        if (entry.available) {
+                            if (idx == chosen) {
+                                break;
+                            }
+                            idx += 1;
+                        }
                     }
                 }
+                
                 
                 storage.get().mazeId = entry.id;
             }
