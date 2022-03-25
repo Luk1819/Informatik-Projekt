@@ -13,6 +13,16 @@ export enum Direction {
     north,
 }
 
+export namespace Direction {
+    export function toString(dir: Direction): string {
+        return Direction[dir];
+    }
+
+    export function fromString(dir: string): Direction {
+        return (Direction as any)[dir];
+    }
+}
+
 export enum EntityType {
     player,
     enemy,
@@ -271,9 +281,13 @@ export class World {
                 this.visit();
 
                 if (target) {
-                    let max = target.props.maxHealth || Infinity;
-                    if (!player.props.health > max) {
-                        player.props.health = Math.min(player.props.health + target.props.health, max);
+                    let max = target.props.maxHealth;
+                    if (player.props.health < max) {
+                        if (max) {
+                            player.props.health = Math.min(player.props.health + target.props.health, max);
+                        } else {
+                            player.props.health += target.props.health
+                        }
                     }
                     player.props.damage += target.props.damage || 0;
                 }
