@@ -194,7 +194,7 @@ function runMenu() {
 function runMaze(currMaze: Maze) {
     let currWorld = world.create(currMaze);
     
-    return cli.ingame(currWorld, function (cmd) {
+    let cont = cli.ingame(currWorld, function (cmd) {
         let moved = false;
         
         if (cmd == cli.InGameCommand.exit) {
@@ -262,6 +262,8 @@ function runMaze(currMaze: Maze) {
     });
     
     cont.survived = currWorld.survived();
+
+    return cont;
 }
 
 function printResult(res, cont) {
