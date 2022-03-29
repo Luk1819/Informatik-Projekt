@@ -1,0 +1,9 @@
+{
+    "type": 8,
+    "name": "Antigone",
+    "health": 20,
+    "damage": 32,
+    "speed": 1,
+    "loot": "antigone"
+
+}
