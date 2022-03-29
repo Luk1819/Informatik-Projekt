@@ -26,16 +26,8 @@ let res = {
 
 storage.load();
 
-type LevelPrintDef = {
-    name: string,
-    done?: boolean,
-    available?: boolean,
-    order: string,
-    id: string
-}
-
-while (res.start) {
-    res = cli.menu(function (cmd: MenuCommand) {
+function runMenu() {
+    return cli.menu(function (cmd: MenuCommand) {
         if (cmd == cli.MenuCommand.start) {
             return {
                 cont: false,
@@ -197,99 +189,82 @@ while (res.start) {
             cont: true,
         };
     });
-    
-    let cont: { restart: boolean, survived?: boolean, exited?: boolean } = {
-        restart: res.start,
-    };
+}
 
-    let currMaze: Maze;
-    if (res.freeplay) {
-        currMaze = generator.createMaze(4, 4);
-    } else {
-        currMaze = maze.mazes[storage.get().mazeId];
-    }
+function runMaze(currMaze: Maze) {
+    let currWorld = world.create(currMaze);
     
-    while (cont.restart) {
-        let currWorld = world.create(currMaze);
-
-        if (res.freeplay) {
-            for (let x = 0; x < currMaze.size[0]; x++) {
-                for (let y = 0; y < currMaze.size[1]; y++) {
-                    currWorld.setVisited(x, y)
-                }
+    return cli.ingame(currWorld, function (cmd) {
+        let moved = false;
+        
+        if (cmd == cli.InGameCommand.exit) {
+            return {
+                cont: false,
+                exited: true
+            };
+        } else if (cmd == cli.InGameCommand.restart) {
+            currWorld = world.create(currMaze);
+            return {
+                cont: false,
+                restart: true
+            };
+        } else if (cmd == cli.InGameCommand.up) {
+            if (!currWorld.walk(world.Direction.north)) {
+                println("Illegal move!");
+            } else {
+                moved = true;
+            }
+        } else if (cmd == cli.InGameCommand.left) {
+            if (!currWorld.walk(world.Direction.west)) {
+                println("Illegal move!");
+            } else {
+                moved = true;
+            }
+        } else if (cmd == cli.InGameCommand.down) {
+            if (!currWorld.walk(world.Direction.south)) {
+                println("Illegal move!");
+            } else {
+                moved = true;
+            }
+        } else if (cmd == cli.InGameCommand.right) {
+            if (!currWorld.walk(world.Direction.east)) {
+                println("Illegal move!");
+            } else {
+                moved = true;
             }
         }
         
-        cont = cli.ingame(currWorld, function (cmd) {
-            let moved = false;
-            
-            if (cmd == cli.InGameCommand.exit) {
-                return {
-                    cont: false,
-                    exited: true
-                };
-            } else if (cmd == cli.InGameCommand.restart) {
-                currWorld = world.create(currMaze);
-                return {
-                    cont: false,
-                    restart: true
-                };
-            } else if (cmd == cli.InGameCommand.up) {
-                if (!currWorld.walk(world.Direction.north)) {
-                    println("Illegal move!");
-                } else {
-                    moved = true;
-                }
-            } else if (cmd == cli.InGameCommand.left) {
-                if (!currWorld.walk(world.Direction.west)) {
-                    println("Illegal move!");
-                } else {
-                    moved = true;
-                }
-            } else if (cmd == cli.InGameCommand.down) {
-                if (!currWorld.walk(world.Direction.south)) {
-                    println("Illegal move!");
-                } else {
-                    moved = true;
-                }
-            } else if (cmd == cli.InGameCommand.right) {
-                if (!currWorld.walk(world.Direction.east)) {
-                    println("Illegal move!");
-                } else {
-                    moved = true;
-                }
-            }
-            
-            if (currWorld.isFinished()) {
-                return {
-                    cont: false,
-                    print: true
-                };
-            }
-            
+        if (currWorld.isFinished()) {
             return {
-                cont: true,
-                didMove: moved
+                cont: false,
+                print: true
             };
-        }, function () {
-            currWorld.enemyMove();
-            currWorld.tick();
-            
-            if (currWorld.isFinished()) {
-                return {
-                    cont: false,
-                    print: true
-                };
-            }
-            
-            return {
-                cont: true
-            };
-        });
+        }
         
-        cont.survived = currWorld.survived();
-    }
+        return {
+            cont: true,
+            didMove: moved
+        };
+    }, function () {
+        currWorld.enemyMove();
+        currWorld.tick();
+        
+        if (currWorld.isFinished()) {
+            return {
+                cont: false,
+                print: true
+            };
+        }
+        
+        return {
+            cont: true
+        };
+    });
     
+    cont.survived = currWorld.survived();
+}
+
+function printResult(res, cont) {
     function printSep(size) {
         println();
         println(chalk.gray("-".repeat(size)));
@@ -305,7 +280,57 @@ while (res.start) {
             printSep(8);
             println(chalk.green.bold("YOU WON!"));
             printSep(8);
-            
+
+            return true;
+        }
+    }
+
+    return false
+}
+
+function freeplay(cont, level) {
+    let currMaze = generator.createMaze(level + 3, level + 3);
+
+    while (cont.restart) {
+        cont = runMaze(currMaze);
+    }
+
+    cont.won = printResult(res, cont);
+
+    return cont;
+}
+
+type LevelPrintDef = {
+    name: string,
+    done?: boolean,
+    available?: boolean,
+    order: string,
+    id: string
+}
+
+while (res.start) {
+    res = runMenu();
+    
+    let cont: { restart: boolean, survived?: boolean, exited?: boolean, won: boolean } = {
+        restart: res.start,
+        won: res.start
+    };
+
+    if (res.freeplay) {
+        let level = 0;
+
+        while (cont.won) {
+            level += 1;
+            cont = freeplay(cont, level);
+        }
+    } else {
+        let currMaze = maze.mazes[storage.get().mazeId];
+        
+        while (cont.restart) {
+            cont = runMaze(currMaze);
+        }
+
+        if (printResult(res, cont)) {
             let completed = storage.get().completed;
             if (!completed.includes(storage.get().mazeId)) {
                 completed.push(storage.get().mazeId);

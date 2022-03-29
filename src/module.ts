@@ -23,7 +23,7 @@ export class Module {
 }
 
 
-export const size: [number, number] = [ 3, 3 ]
+export const size: [number, number] = [ 7, 7 ]
 
 
 export const modules: Module[] = [];
