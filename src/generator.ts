@@ -78,14 +78,8 @@ export function createMaze(width: number, height: number) {
     return maze;
 }
 
-function filterModules(modules: Module[], directions: Direction[]) {
-    return modules.filter(function (module: Module) {
-        return arrayEquals(directions, module.directions);
-    });
-}
-
 function createModule(maze: Maze, node: Cell, directions: Direction[], isStart: boolean, isEnd: boolean) {
-    let possible = filterModules(modules.modules, directions);
+    let possible = modules.filterModules(modules.modules, directions);
     if (possible.length == 0) {
         println("Failed to find module for directions [" + directions.map(Direction.toString) + "]");
     }

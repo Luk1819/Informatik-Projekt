@@ -21,6 +21,8 @@ export namespace Direction {
     export function fromString(dir: string): Direction {
         return (Direction as any)[dir];
     }
+
+    export const values: Direction[] = [Direction.west, Direction.south, Direction.east, Direction.north];
 }
 
 export enum EntityType {

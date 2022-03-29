@@ -23,6 +23,42 @@ export class Module {
 }
 
 
+export function filterModules(modules: Module[], directions: Direction[]) {
+    return modules.filter(function (module: Module) {
+        return arrayEquals(directions, module.directions);
+    });
+}
+
+function checkDirection(missing: Direction[][], toCheck: Direction[]) {
+    let available = filterModules(modules, toCheck);
+    if (available.length == 0) {
+        missing.push(toCheck);
+    }
+}
+
+export function check() {
+    let missing: Direction[][] = [];
+
+    for (let dir1 of Direction.values) {
+        checkDirection(missing, [dir1]);
+        for (let dir2 of Direction.values) {
+            checkDirection(missing, [dir1, dir2]);
+            for (let dir3 of Direction.values) {
+                checkDirection(missing, [dir1, dir2, dir3]);
+                for (let dir4 of Direction.values) {
+                    checkDirection(missing, [dir1, dir2, dir3, dir4]);
+                }
+            }
+        }
+    }
+
+    for (let failed of missing) {
+        println("Failed to find module for directions: [" + failed + "].")
+    }
+    throw Error("Missing modules. See above for details.")
+}
+
+
 export const size: [number, number] = [ 7, 7 ]
 
 
