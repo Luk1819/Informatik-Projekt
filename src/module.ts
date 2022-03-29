@@ -1,5 +1,5 @@
 import { Direction } from "./world.js";
-import {readDataFolder, arrayEquals} from "./utils.js";
+import {readDataFolder, arrayEquals, println} from "./utils.js";
 import {readTiles, TileData, TileDefinition} from "./maze.js";
 
 export class Module {
