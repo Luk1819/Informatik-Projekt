@@ -3,7 +3,7 @@ import * as modules from "./module.js";
 import {Maze} from "./maze.js";
 import { Direction } from "./world.js";
 import { Module } from "./module.js";
-import {arrayEquals, Position, println, randomElement} from "./utils.js";
+import {Position, println, randomElement} from "./utils.js";
 
 type Cell = {
     x: number,
