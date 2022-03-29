@@ -298,6 +298,7 @@ function freeplay(cont, level) {
     }
 
     cont.won = printResult(res, cont);
+    cont.restart = cont.won;
 
     return cont;
 }
