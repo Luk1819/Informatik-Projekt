@@ -31,7 +31,7 @@ export function filterModules(modules: Module[], directions: Direction[]) {
 
 function checkDirection(missing: Direction[][], toCheck: Direction[]) {
     let available = filterModules(modules, toCheck);
-    if (available.length == 0) {
+    if (available.length == 0 && !missing.some(v => arrayEquals(toCheck, v))) {
         missing.push(toCheck);
     }
 }
@@ -53,7 +53,7 @@ export function check() {
     }
 
     for (let failed of missing) {
-        println("Failed to find module for directions: [" + failed + "].")
+        println("Failed to find module for directions: [" + failed.map(Direction.toString) + "].")
     }
     throw Error("Missing modules. See above for details.")
 }
