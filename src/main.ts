@@ -4,7 +4,7 @@ import * as maze from "./maze.js";
 import * as world from "./world.js";
 import * as enemies from "./enemies.js";
 import * as loot from "./loot.js";
-import * as module from "./module.js";
+import * as modules from "./module.js";
 import * as generator from "./generator.js";
 import chalk from "chalk";
 import {MenuCommand} from "./cli.js";
@@ -17,7 +17,8 @@ cli.start();
 loot.discover();
 enemies.discover();
 maze.discover();
-module.discover();
+modules.discover();
+modules.check();
 
 let res = {
     start: true,
