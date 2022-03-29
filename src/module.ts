@@ -42,20 +42,28 @@ export function check() {
     for (let dir1 of Direction.values) {
         checkDirection(missing, [dir1]);
         for (let dir2 of Direction.values) {
-            checkDirection(missing, [dir1, dir2]);
-            for (let dir3 of Direction.values) {
-                checkDirection(missing, [dir1, dir2, dir3]);
-                for (let dir4 of Direction.values) {
-                    checkDirection(missing, [dir1, dir2, dir3, dir4]);
+            if (dir2 != dir1) {
+                checkDirection(missing, [dir1, dir2]);
+                for (let dir3 of Direction.values) {
+                    if (dir3 != dir2 && dir3 != dir1) {
+                        checkDirection(missing, [dir1, dir2, dir3]);
+                        for (let dir4 of Direction.values) {
+                            if (dir4 != dir3 && dir4 != dir2 && dir4 != dir1) {
+                                checkDirection(missing, [dir1, dir2, dir3, dir4]);
+                            }
+                        }
+                    }
                 }
             }
         }
     }
 
-    for (let failed of missing) {
-        println("Failed to find module for directions: [" + failed.map(Direction.toString) + "].")
+    if (missing.length > 0) {
+        for (let failed of missing) {
+            println("Failed to find module for directions: [" + failed.map(Direction.toString) + "].");
+        }
+        throw Error("Missing modules. See above for details.");
     }
-    throw Error("Missing modules. See above for details.")
 }
 
 
