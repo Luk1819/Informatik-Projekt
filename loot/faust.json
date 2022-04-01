@@ -1,0 +1,11 @@
+{
+    "content": [
+        {
+            "chance": 0.5,
+            "item": {
+                "health": 20,
+                "damage": 2
+            }
+        }
+    ]
+}

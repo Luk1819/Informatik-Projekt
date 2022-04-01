@@ -1,0 +1,9 @@
+{
+    "type": 10,
+    "name": "Wilhelm Tell",
+    "health": 20,
+    "damage": 32,
+    "speed": 1,
+    "loot": "wilhelmtell"
+
+}
