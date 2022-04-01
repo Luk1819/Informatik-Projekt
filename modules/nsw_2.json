@@ -12,5 +12,6 @@
     "enemies": [
         { "pos": [ 5, 4 ], "type": 1 },
         { "pos": [ 1, 4 ], "type": 3 }
-    ]
+    ],
+    "goalPos": [ 3, 5 ]
 }
