@@ -1,5 +1,5 @@
 import {JsonInitialized, Position, List, readDataFolder} from "./utils.js";
-import {World} from "./world.js"
+import { WorldDataSegment, World, WorldDataType } from "./world.js";
 
 export type TileDefinition<T> = { [id: (number | string)]: T };
 
@@ -55,20 +55,22 @@ type MazeData = {
 export class Tile {
     data: TileDataInstance;
     pos: Position;
+    world: World;
 
-    constructor(pos: [number, number] | Position, data: TileData) {
+    constructor(pos: [number, number] | Position, world: World, data: TileData) {
         this.pos = new Position(pos);
-        this.data = data.create(this.pos);
+        this.world = world;
+        this.data = data.create(this.pos, this.world);
     }
 
-    tick(world: World) {
-        this.data.tick(world);
+    tick() {
+        this.data.tick();
     }
 }
 
 export class TileData extends JsonInitialized {
-    spawner!: (pos: Position) => TileSpawnerData;
-    portal!: (pos: Position) => TilePortalData;
+    spawner!: (pos: Position, world: World) => TileSpawnerData;
+    portal!: (pos: Position, world: World) => TilePortalData;
     wall!: boolean;
     blocksVision!: boolean;
     name!: string;
@@ -79,11 +81,11 @@ export class TileData extends JsonInitialized {
         this.loadData(data, {
             spawner: {
                 default: null,
-                creator: v => ((pos: Position) => new TileSpawnerData(v, pos)),
+                creator: v => ((pos: Position, world: World) => new TileSpawnerData(v, world, pos)),
             },
             portal: {
                 default: null,
-                creator: v => ((pos: Position) => new TilePortalData(v, pos)),
+                creator: v => ((pos: Position, world: World) => new TilePortalData(v, world, pos)),
             },
             wall: {
                 default: false,
@@ -100,8 +102,8 @@ export class TileData extends JsonInitialized {
         });
     }
 
-    create(pos: Position) {
-        return new TileDataInstance(this, pos);
+    create(pos: Position, world: World) {
+        return new TileDataInstance(this, pos, world);
     }
 }
 
@@ -124,9 +126,9 @@ class TileDataInstance {
         this.pos = pos;
     }
 
-    tick(world: World) {
-        this.spawner.tick(this, world);
-        this.portal.tick(this, world);
+    tick() {
+        this.spawner.tick(this);
+        this.portal.tick(this);
     }
 }
 
@@ -136,7 +138,7 @@ class TileSpawnerData extends JsonInitialized {
     cooldownLeft: number
     pos: Position;
 
-    constructor(data: any | null, pos: Position) {
+    constructor(data: any | null, world: World, pos: Position) {
         super();
         this.loadData(data, {
             enemy: {
@@ -150,7 +152,7 @@ class TileSpawnerData extends JsonInitialized {
         this.pos = pos;
     }
 
-    tick(tileData: TileDataInstance, world: World) {
+    tick(tileData: TileDataInstance) {
         if (tileData.wall) {
             return;
         }
@@ -166,15 +168,47 @@ class TileSpawnerData extends JsonInitialized {
     }
 }
 
+const WorldPortalDataType: WorldDataType<WorldPortalData> = WorldPortalData;
+
+class WorldPortalData implements WorldDataSegment {
+    world: World;
+    portals: { [id: string]: Position[] } = {};
+    teleported: boolean = false;
+
+    constructor(world: World) {
+        this.world = world;
+    }
+
+    newTurn() {
+        this.teleported = false;
+    }
+
+    registerPortal(portal: TilePortalData) {
+        let all = TilePortalData.portals[portal.id];
+        if (all) {
+            all.push(portal.pos);
+        } else {
+            all = [portal.pos];
+            TilePortalData.portals[portal.id] = all;
+        }
+    }
+
+    getTarget(portal: TilePortalData) {
+        let all = TilePortalData.portals[portal.id].filter(v => !Position.equals(v, portal.pos));
+        if (all.length == 0) {
+            return null;
+        }
+        return all[Math.floor(Math.random() * all.length)];
+    }
+}
+
 export class TilePortalData extends JsonInitialized {
     id!: string | -1;
     isTarget!: boolean;
     isSource!: boolean;
     pos: Position;
-    static portals: { [id: string]: Position[] } = {};
-    static teleported: boolean = false;
 
-    constructor(data: any | null, pos: Position) {
+    constructor(data: any | null, world: World, pos: Position) {
         super();
         this.loadData(data, {
             id: {
@@ -188,32 +222,19 @@ export class TilePortalData extends JsonInitialized {
             }
         });
         this.pos = pos;
+
+        if (!world.data.get(WorldPortalDataType)) {
+            world.data.register(WorldPortalDataType);
+        }
+
         if (this.isTarget) {
-            TilePortalData.registerPortal(this);
+            world.data.get(WorldPortalDataType).registerPortal(this);
         }
     }
 
-    static registerPortal(portal: TilePortalData) {
-        let all = TilePortalData.portals[portal.id];
-        if (all) {
-            all.push(portal.pos);
-        } else {
-            all = [portal.pos];
-            TilePortalData.portals[portal.id] = all;
-        }
-    }
-
-    static getTarget(portal: TilePortalData) {
-        let all = TilePortalData.portals[portal.id].filter(v => !Position.equals(v, portal.pos));
-        if (all.length == 0) {
-            return null;
-        }
-        return all[Math.floor(Math.random() * all.length)];
-    }
-
-    tick(tileData: TileDataInstance, world: World) {
-        if (this.isSource && this.id != -1 && !TilePortalData.teleported && Position.equals(world.player, this.pos)) {
-            let target = TilePortalData.getTarget(this)
+    tick(tileData: TileDataInstance) {
+        if (this.isSource && this.id != -1 && !world.data.get(WorldPortalDataType).teleported && Position.equals(world.player, this.pos)) {
+            let target = world.data.get(WorldPortalDataType).getTarget(this)
             if (target != null && world.get(target.x, target.y) == null) {
                 let {x, y} = world.player;
                 let player = world.get(x, y);

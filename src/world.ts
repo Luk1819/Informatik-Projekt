@@ -33,6 +33,7 @@ export enum EntityType {
 
 export class World {
     maze: mazes.Maze;
+    data: WorldData;
     tiles: Tile[][];
     entities: { [x: number]: { [y: number]: { type: number, props: any } | null } };
     player: Position;
@@ -43,10 +44,11 @@ export class World {
 
     constructor(maze: Maze) {
         this.maze = maze;
+        this.data = new WorldData(this);
         this.tiles = List(maze.size[0], function (x) {
             return List(maze.size[1], function (y) {
                 let tile = maze.get(x, y);
-                return new Tile([x, y], tile)
+                return new Tile([x, y], this, tile)
             });
         });
         this.entities = {};
@@ -332,6 +334,39 @@ export class World {
     survived() {
         return this.get(this.player.x, this.player.y)!.props.health > 0;
     }
+}
+
+export class WorldData {
+    segments: WorldDataSegment[] = [];
+    world: World;
+
+    constructor(world: World) {
+        this.world = world;
+    }
+
+
+    callNewTurn() {
+        this.segments.forEach(v => v.newTurn());
+    }
+
+
+    register<T extends WorldDataSegment>(type: WorldDataType<T>): T {
+        let segment = new type(this.world);
+        this.segments.push(segment);
+        return segment;
+    }
+
+    get<T>(type: WorldDataType<T>): T | undefined {
+        return this.segments.find<T>(v => v instanceof type);
+    }
+}
+
+export interface WorldDataType<T extends WorldDataSegment> {
+    new(world: World): T;
+}
+
+export interface WorldDataSegment {
+    newTurn();
 }
 
 export function create(maze) {
