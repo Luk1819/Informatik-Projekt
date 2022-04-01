@@ -207,6 +207,7 @@ export class TilePortalData extends JsonInitialized {
     isTarget!: boolean;
     isSource!: boolean;
     pos: Position;
+    world: World;
 
     constructor(data: any | null, world: World, pos: Position) {
         super();
@@ -222,29 +223,30 @@ export class TilePortalData extends JsonInitialized {
             }
         });
         this.pos = pos;
+        this.world = world;
 
         if (!world.data.get(WorldPortalDataType)) {
             world.data.register(WorldPortalDataType);
         }
 
         if (this.isTarget) {
-            world.data.get(WorldPortalDataType).registerPortal(this);
+            this.world.data.get(WorldPortalDataType).registerPortal(this);
         }
     }
 
     tick(tileData: TileDataInstance) {
-        if (this.isSource && this.id != -1 && !world.data.get(WorldPortalDataType).teleported && Position.equals(world.player, this.pos)) {
-            let target = world.data.get(WorldPortalDataType).getTarget(this)
-            if (target != null && world.get(target.x, target.y) == null) {
-                let {x, y} = world.player;
-                let player = world.get(x, y);
-                world.set(x, y, null);
-                world.set(target.x, target.y, player);
-                world.player = target;
+        if (this.isSource && this.id != -1 && !this.world.data.get(WorldPortalDataType).teleported && Position.equals(world.player, this.pos)) {
+            let target = this.world.data.get(WorldPortalDataType).getTarget(this)
+            if (target != null && this.world.get(target.x, target.y) == null) {
+                let {x, y} = this.world.player;
+                let player = this.world.get(x, y);
+                this.world.set(x, y, null);
+                this.world.set(target.x, target.y, player);
+                this.world.player = target;
 				
-				world.visit();
+				this.world.visit();
 
-                TilePortalData.teleported = true;
+                this.world.data.get(WorldPortalDataType).teleported = true;
             }
         }
     }
