@@ -115,15 +115,17 @@ class TileDataInstance {
     name: string;
     mapName: string;
     pos: Position;
+    world: World;
 
-    constructor(data: TileData, pos: Position) {
-        this.spawner = data.spawner(pos);
-        this.portal = data.portal(pos);
+    constructor(data: TileData, pos: Position, world: World) {
+        this.spawner = data.spawner(pos, world);
+        this.portal = data.portal(pos, world);
         this.wall = data.wall;
         this.blocksVision = data.blocksVision;
         this.name = data.name;
         this.mapName = data.mapName;
         this.pos = pos;
+        this.world = world;
     }
 
     tick() {
@@ -168,8 +170,6 @@ class TileSpawnerData extends JsonInitialized {
     }
 }
 
-const WorldPortalDataType: WorldDataType<WorldPortalData> = WorldPortalData;
-
 class WorldPortalData implements WorldDataSegment {
     world: World;
     portals: { [id: string]: Position[] } = {};
@@ -184,23 +184,25 @@ class WorldPortalData implements WorldDataSegment {
     }
 
     registerPortal(portal: TilePortalData) {
-        let all = TilePortalData.portals[portal.id];
+        let all = this.portals[portal.id];
         if (all) {
             all.push(portal.pos);
         } else {
             all = [portal.pos];
-            TilePortalData.portals[portal.id] = all;
+            this.portals[portal.id] = all;
         }
     }
 
     getTarget(portal: TilePortalData) {
-        let all = TilePortalData.portals[portal.id].filter(v => !Position.equals(v, portal.pos));
+        let all = this.portals[portal.id].filter(v => !Position.equals(v, portal.pos));
         if (all.length == 0) {
             return null;
         }
         return all[Math.floor(Math.random() * all.length)];
     }
 }
+
+const WorldPortalDataType: WorldDataType<WorldPortalData> = WorldPortalData;
 
 export class TilePortalData extends JsonInitialized {
     id!: string | -1;
@@ -225,8 +227,8 @@ export class TilePortalData extends JsonInitialized {
         this.pos = pos;
         this.world = world;
 
-        if (!world.data.get(WorldPortalDataType)) {
-            world.data.register(WorldPortalDataType);
+        if (!this.world.data.get(WorldPortalDataType)) {
+            this.world.data.register(WorldPortalDataType);
         }
 
         if (this.isTarget) {
