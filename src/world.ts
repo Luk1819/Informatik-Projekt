@@ -45,10 +45,11 @@ export class World {
     constructor(maze: Maze) {
         this.maze = maze;
         this.data = new WorldData(this);
+        let world = this;
         this.tiles = List(maze.size[0], function (x) {
             return List(maze.size[1], function (y) {
                 let tile = maze.get(x, y);
-                return new Tile([x, y], this, tile)
+                return new Tile([x, y], world, tile)
             });
         });
         this.entities = {};
@@ -129,39 +130,70 @@ export class World {
         }
     }
 
+    rayCast(start: Position, end: Position) {
+        if (Position.equals(start, end)) {
+            return false;
+        }
+
+        let dir = new Position(end.x - start.x, end.y - start.y);
+        let t = 0;
+        let curr = new Position(start);
+        let tile = new Position(Math.floor(curr.x) + 1, Math.floor(curr.y) + 1);
+        let tileOffset = new Position(dir.x > 0 ? 1 : 0, dir.y > 0 ? 1 : 0);
+
+        let dirSign = [dir.x > 0 ? 1 : -1, dir.y > 0 ? 1 : -1];
+
+        if (dir.x * dir.x + dir.y * dir.y > 0) {
+            while (tile.x > 0 && tile.x < this.maze.size[0] && tile.y > 0 && tile.y < this.maze.size[1]) {
+                if (this.blocksVision(tile.x, tile.y) && !Position.equals(tile, end)) {
+                    return true;
+                }
+
+                let delta = [(tile.x + dirSign[0] - curr.x) / dir.x, (tile.y + dirSign[1] - curr.y) / dir.y];
+                if (delta[0] < delta[1]) {
+                    t += delta[0] + 0.001;
+                    tile.x += dirSign[0];
+                } else {
+                    t += delta[1] + 0.001;
+                    tile.y += dirSign[1];
+                }
+
+                curr.x = start.x + dir.x * t;
+                curr.y = start.y + dir.y * t;
+            }
+        } else {
+            return this.blocksVision(tile.x, tile.y) && !Position.equals(tile, end);
+        }
+
+        return false;
+    }
+
     isVisible(x: number, y: number) {
         let px = this.player.x;
         let py = this.player.y;
 
-        if (x == px && y == py) {
-            return true;
-        } else if (Math.abs(x - px) > 2 || Math.abs(y - py) > 2) {
-            return false;
-        } else if (Math.abs(x - px) < 2 && Math.abs(y - py) < 2) {
-            if (Math.abs(x - px) == 1 && Math.abs(y - py) == 1) {
-                return !this.blocksVision(x, py) && !this.blocksVision(px, y)
-            } else {
-                return true;
-            }
-        } else if (Math.abs(x - px) == 2) {
-            if (Math.abs(y - py) < 1) {
-                return !this.blocksVision((x + px) / 2, y);
-            } else if (Math.abs(y - py) == 1) {
-                return !this.blocksVision((x + px) / 2, py) && !(this.blocksVision((x + px) / 2, y) && this.blocksVision(x, py));
-            } else { // Math.abs(y - py) == 2
-                return !this.blocksVision((x + px) / 2, (y + py) / 2) &&
-                       !this.blocksVision((x + px) / 2, py) && !this.blocksVision(px, (y + py) / 2) &&
-                       !this.blocksVision(x, (y + py) / 2) && !this.blocksVision((x + px) / 2, y);
-            }
-        } else { // Math.abs(y - py) == 2
-            if (Math.abs(x - px) < 1) {
-                return !this.blocksVision(x, (y + py) / 2);
-            } else if (Math.abs(x - px) == 1) {
-                return !this.blocksVision(px, (y + py) / 2) && (!this.blocksVision(x, (y + py) / 2) || !this.blocksVision(px, y));
-            } else { // Math.abs(x - px) == 2 (Should never happen, as it fits the case above
-                throw Error("Illegal state: This should never happen!");
+        let offset = [0.3, 0.7];
+        let targetOffset = [0, 1];
+
+        for (let ofsX of offset) {
+            for (let ofsY of offset) {
+                for (let tOfsX of targetOffset) {
+                    for (let tOfsY of targetOffset) {
+                        if (px > x) {
+                            tOfsX *= -1;
+                        }
+                        if (py > y) {
+                            tOfsY *= -1;
+                        }
+                        if (!this.rayCast(new Position(px + ofsX, py + ofsY), new Position(x + tOfsX, y + tOfsY))) {
+                            return true;
+                        }
+                    }
+                }
             }
         }
+
+        return false;
     }
 
     get(x: number, y: number) {
@@ -198,7 +230,7 @@ export class World {
     }
 
     tick() {
-        TilePortalData.teleported = false;
+        this.data.callNewTurn();
         this.tiles.forEach(row => row.forEach(tile => tile.tick(this)));
     }
 

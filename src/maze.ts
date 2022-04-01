@@ -139,6 +139,7 @@ class TileSpawnerData extends JsonInitialized {
     cooldown!: number;
     cooldownLeft: number
     pos: Position;
+    world: World;
 
     constructor(data: any | null, world: World, pos: Position) {
         super();
@@ -152,6 +153,7 @@ class TileSpawnerData extends JsonInitialized {
         });
         this.cooldownLeft = this.cooldown;
         this.pos = pos;
+        this.world = world;
     }
 
     tick(tileData: TileDataInstance) {
@@ -160,8 +162,8 @@ class TileSpawnerData extends JsonInitialized {
         }
 
         if (this.enemy != -1) {
-            if (this.cooldownLeft <= 0 && world.get(this.pos.x, this.pos.y) == null) {
-                world.set(this.pos.x, this.pos.y, world.createEnemy(this.enemy));
+            if (this.cooldownLeft <= 0 && this.world.get(this.pos.x, this.pos.y) == null) {
+                this.world.set(this.pos.x, this.pos.y, world.createEnemy(this.enemy));
                 this.cooldownLeft = this.cooldown;
             } else {
                 this.cooldownLeft -= 1;
@@ -237,7 +239,7 @@ export class TilePortalData extends JsonInitialized {
     }
 
     tick(tileData: TileDataInstance) {
-        if (this.isSource && this.id != -1 && !this.world.data.get(WorldPortalDataType).teleported && Position.equals(world.player, this.pos)) {
+        if (this.isSource && this.id != -1 && !this.world.data.get(WorldPortalDataType).teleported && Position.equals(this.world.player, this.pos)) {
             let target = this.world.data.get(WorldPortalDataType).getTarget(this)
             if (target != null && this.world.get(target.x, target.y) == null) {
                 let {x, y} = this.world.player;
