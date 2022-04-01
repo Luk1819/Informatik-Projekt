@@ -3,6 +3,7 @@
     "name": "Faust",
     "health": 69,
     "damage": 8,
-    "speed": 2
+    "speed": 2,
+    "sight": 3
 
 }

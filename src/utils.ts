@@ -106,6 +106,10 @@ export class Position {
         }
     }
 
+    toString() {
+        return "Pos(x=" + this.x + ",y=" + this.y + ")";
+    }
+
     static equals(pos1: Position, pos2: Position) {
         return pos1.x == pos2.x && pos1.y == pos2.y;
     }

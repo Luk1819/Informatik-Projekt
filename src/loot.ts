@@ -2,7 +2,8 @@ import { readDataFolder } from "./utils.js";
 
 type LootItem = {
     health?: number,
-    damage?: number
+    damage?: number,
+    sight?: number
 }
 
 type LootEntry = {

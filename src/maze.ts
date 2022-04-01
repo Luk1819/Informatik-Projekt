@@ -107,6 +107,10 @@ export class TileData extends JsonInitialized {
     }
 }
 
+interface TileBehaviourData {
+    tick(tileData: TileDataInstance);
+}
+
 class TileDataInstance {
     spawner: TileSpawnerData;
     portal: TilePortalData;
@@ -134,7 +138,7 @@ class TileDataInstance {
     }
 }
 
-class TileSpawnerData extends JsonInitialized {
+class TileSpawnerData extends JsonInitialized implements TileBehaviourData {
     enemy!: number;
     cooldown!: number;
     cooldownLeft: number
@@ -163,7 +167,7 @@ class TileSpawnerData extends JsonInitialized {
 
         if (this.enemy != -1) {
             if (this.cooldownLeft <= 0 && this.world.get(this.pos.x, this.pos.y) == null) {
-                this.world.set(this.pos.x, this.pos.y, world.createEnemy(this.enemy));
+                this.world.set(this.pos.x, this.pos.y, this.world.createEnemy(this.enemy));
                 this.cooldownLeft = this.cooldown;
             } else {
                 this.cooldownLeft -= 1;
@@ -206,7 +210,7 @@ class WorldPortalData implements WorldDataSegment {
 
 const WorldPortalDataType: WorldDataType<WorldPortalData> = WorldPortalData;
 
-export class TilePortalData extends JsonInitialized {
+export class TilePortalData extends JsonInitialized implements TileBehaviourData {
     id!: string | -1;
     isTarget!: boolean;
     isSource!: boolean;
@@ -234,23 +238,24 @@ export class TilePortalData extends JsonInitialized {
         }
 
         if (this.isTarget) {
-            this.world.data.get(WorldPortalDataType).registerPortal(this);
+            this.world.data.get(WorldPortalDataType)!.registerPortal(this);
         }
     }
 
     tick(tileData: TileDataInstance) {
-        if (this.isSource && this.id != -1 && !this.world.data.get(WorldPortalDataType).teleported && Position.equals(this.world.player, this.pos)) {
-            let target = this.world.data.get(WorldPortalDataType).getTarget(this)
+        if (this.isSource && this.id != -1 && !this.world.data.get(WorldPortalDataType)!.teleported && Position.equals(this.world.player, this.pos)) {
+            let target = this.world.data.get(WorldPortalDataType)!.getTarget(this)
             if (target != null && this.world.get(target.x, target.y) == null) {
                 let {x, y} = this.world.player;
                 let player = this.world.get(x, y);
                 this.world.set(x, y, null);
                 this.world.set(target.x, target.y, player);
                 this.world.player = target;
-				
+
+                this.world.markVisibilityDirty();
 				this.world.visit();
 
-                this.world.data.get(WorldPortalDataType).teleported = true;
+                this.world.data.get(WorldPortalDataType)!.teleported = true;
             }
         }
     }

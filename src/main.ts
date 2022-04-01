@@ -27,7 +27,7 @@ let res = {
 
 storage.load();
 
-function runMenu() {
+function runMenu(): { start: true, freeplay: false } {
     return cli.menu(function (cmd: MenuCommand) {
         if (cmd == cli.MenuCommand.start) {
             return {
@@ -195,7 +195,7 @@ function runMenu() {
 function runMaze(currMaze: Maze) {
     let currWorld = world.create(currMaze);
     
-    let cont = cli.ingame(currWorld, function (cmd) {
+    let cont: { restart: boolean, survived?: boolean, exited?: boolean } = cli.ingame(currWorld, function (cmd) {
         let moved = false;
         
         if (cmd == cli.InGameCommand.exit) {
@@ -291,7 +291,7 @@ function printResult(res, cont) {
     return false
 }
 
-function freeplay(cont, level) {
+function freeplay(cont: { restart: boolean, survived?: boolean, exited?: boolean, won?: boolean }, level) {
     let currMaze = generator.createMaze(level + 3, level + 3);
 
     while (cont.restart) {
@@ -315,7 +315,7 @@ type LevelPrintDef = {
 while (res.start) {
     res = runMenu();
     
-    let cont: { restart: boolean, survived?: boolean, exited?: boolean, won: boolean } = {
+    let cont: { restart: boolean, survived?: boolean, exited?: boolean, won?: boolean } = {
         restart: res.start,
         won: res.start
     };

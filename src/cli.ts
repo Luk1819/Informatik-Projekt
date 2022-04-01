@@ -419,6 +419,7 @@ export function ingame<T>(world: World, commandCallback: (InGameCommand) => (T &
             }
 
             if (!special && cont.didMove) {
+                delete cont.didMove;
                 cont = {...cont, ...calcTurnCallback()};
             }
         }

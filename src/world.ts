@@ -1,10 +1,11 @@
 import * as enemies from "./enemies.js";
 import * as mazes from "./maze.js";
 import * as loot from "./loot.js";
+import * as raytracing from "./raytracing.js";
 import {List, Position} from "./utils.js";
 import {Maze, Tile} from "./maze.js";
 import {EnemyInstance} from "./enemies.js";
-import { TilePortalData } from "./maze.js";
+import {createVisionMap} from "./raytracing.js";
 
 export enum Direction {
     west,
@@ -39,6 +40,8 @@ export class World {
     player: Position;
     visited: { [x: number]: { [y: number]: boolean } };
 
+    playerVisibilityMap: raytracing.Storage | null;
+
     kills = 0;
     rounds = 0;
 
@@ -54,6 +57,7 @@ export class World {
         });
         this.entities = {};
         this.visited = {};
+        this.playerVisibilityMap = null;
         let {x, y} = maze.start;
         this.player = new Position(x, y);
         this.set(x, y, {
@@ -61,6 +65,7 @@ export class World {
             props: {
                 health: maze.player.hp,
                 damage: maze.player.damage,
+                sight: 2,
             },
         });
 
@@ -120,9 +125,10 @@ export class World {
 
     visit() {
         let {x, y} = this.player;
+        let range = this.get(this.player.x, this.player.y)!.props.sight + 2;
 
-        for (let i = x - 2; i <= x + 2; i++) {
-            for (let j = y - 2; j <= y + 2; j++) {
+        for (let i = x - range; i <= x + range; i++) {
+            for (let j = y - range; j <= y + range; j++) {
                 if (this.isVisible(i, j)) {
                     this.setVisited(i, j);
                 }
@@ -130,70 +136,16 @@ export class World {
         }
     }
 
-    rayCast(start: Position, end: Position) {
-        if (Position.equals(start, end)) {
-            return false;
+    isVisible(x: number, y: number) {
+        if (this.playerVisibilityMap == null) {
+            this.playerVisibilityMap = createVisionMap(this, this.get(this.player.x, this.player.y)!.props.sight, this.player);
         }
 
-        let dir = new Position(end.x - start.x, end.y - start.y);
-        let t = 0;
-        let curr = new Position(start);
-        let tile = new Position(Math.floor(curr.x) + 1, Math.floor(curr.y) + 1);
-        let tileOffset = new Position(dir.x > 0 ? 1 : 0, dir.y > 0 ? 1 : 0);
-
-        let dirSign = [dir.x > 0 ? 1 : -1, dir.y > 0 ? 1 : -1];
-
-        if (dir.x * dir.x + dir.y * dir.y > 0) {
-            while (tile.x > 0 && tile.x < this.maze.size[0] && tile.y > 0 && tile.y < this.maze.size[1]) {
-                if (this.blocksVision(tile.x, tile.y) && !Position.equals(tile, end)) {
-                    return true;
-                }
-
-                let delta = [(tile.x + dirSign[0] - curr.x) / dir.x, (tile.y + dirSign[1] - curr.y) / dir.y];
-                if (delta[0] < delta[1]) {
-                    t += delta[0] + 0.001;
-                    tile.x += dirSign[0];
-                } else {
-                    t += delta[1] + 0.001;
-                    tile.y += dirSign[1];
-                }
-
-                curr.x = start.x + dir.x * t;
-                curr.y = start.y + dir.y * t;
-            }
-        } else {
-            return this.blocksVision(tile.x, tile.y) && !Position.equals(tile, end);
-        }
-
-        return false;
+        return this.playerVisibilityMap.get(x, y);
     }
 
-    isVisible(x: number, y: number) {
-        let px = this.player.x;
-        let py = this.player.y;
-
-        let offset = [0.3, 0.7];
-        let targetOffset = [0, 1];
-
-        for (let ofsX of offset) {
-            for (let ofsY of offset) {
-                for (let tOfsX of targetOffset) {
-                    for (let tOfsY of targetOffset) {
-                        if (px > x) {
-                            tOfsX *= -1;
-                        }
-                        if (py > y) {
-                            tOfsY *= -1;
-                        }
-                        if (!this.rayCast(new Position(px + ofsX, py + ofsY), new Position(x + tOfsX, y + tOfsY))) {
-                            return true;
-                        }
-                    }
-                }
-            }
-        }
-
-        return false;
+    markVisibilityDirty() {
+        this.playerVisibilityMap = null;
     }
 
     get(x: number, y: number) {
@@ -231,7 +183,7 @@ export class World {
 
     tick() {
         this.data.callNewTurn();
-        this.tiles.forEach(row => row.forEach(tile => tile.tick(this)));
+        this.tiles.forEach(row => row.forEach(tile => tile.tick()));
     }
 
     enemyMove() {
@@ -241,11 +193,15 @@ export class World {
             for (let y = 0; y < this.maze.size[1]; y++) {
                 let enemy = this.get(x, y);
 
-                if (enemy && enemy.type == EntityType.enemy && this.isVisible(x, y)) {
-                    es.push({
-                        enemy,
-                        loc: [x, y]
-                    });
+                if (enemy && enemy.type == EntityType.enemy) {
+                    let sight = enemy.props.sight;
+                    let visionMap = createVisionMap(this, sight, new Position(x, y));
+                    if (visionMap.get(this.player.x, this.player.y)) {
+                        es.push({
+                            enemy,
+                            loc: [x, y],
+                        });
+                    }
                 }
             }
         }
@@ -264,32 +220,36 @@ export class World {
 
                 if (Math.abs(x - px) < 2 && Math.abs(y - py) < 2) {
                     player.props.health -= enemy.props.damage;
-                } else if (Math.abs(x - px) == 2) {
-                    if (Math.abs(y - py) < 1) {
-                        newx = (x + px) / 2;
-                        newy = y;
-                    } else if (Math.abs(y - py) == 1) {
-                        newx = (x + px) / 2;
-                        newy = py;
-                    } else { // Math.abs(y - py) == 2
-                        newx = (x + px) / 2;
-                        newy = (y + py) / 2;
-                    }
-                } else { // Math.abs(y - py) == 2
-                    if (Math.abs(x - px) < 1) {
+                } else if (Math.abs(y - py) < 2) {
+                    newy = y;
+                    newx = x + Math.sign(px - x);
+
+                    if (this.isWall(newx, newy) || this.get(newx, newy) != null) {
                         newx = x;
-                        newy = (y + py) / 2;
-                    } else if (Math.abs(x - px) == 1) {
-                        newx = px;
-                        newy = (y + py) / 2;
-                    } else { // Math.abs(x - px) == 2 (Should never happen, as it fits the case above
-                        throw Error("Illegal state: This should never happen!");
+                        newy = y + Math.sign(py - y);
+                    }
+                } else if (Math.abs(x - px) < 2) {
+                    newx = x;
+                    newy = y + Math.sign(py - y);
+
+                    if (this.isWall(newx, newy) || this.get(newx, newy) != null) {
+                        newy = y;
+                        newx = x + Math.sign(px - x);
+                    }
+                } else {
+                    newy = y;
+                    newx = x + Math.sign(px - x);
+
+                    if (this.isWall(newx, newy) || this.get(newx, newy) != null) {
+                        newx = x;
+                        newy = y + Math.sign(py - y);
                     }
                 }
 
-                if (newx !== null && newy !== null && this.get(newx, newy) === null) {
+                if (newx !== null && newy !== null && this.get(newx, newy) == null && !this.isWall(newx, newy)) {
                     this.set(x, y, null);
                     this.set(newx, newy, enemy);
+
                     x = newx;
                     y = newy;
                 }
@@ -314,6 +274,7 @@ export class World {
                 this.set(newx, newy, player);
                 this.player = new Position(newx, newy);
 
+                this.markVisibilityDirty();
                 this.visit();
 
                 if (target) {
@@ -327,6 +288,7 @@ export class World {
                     }
                     
                     player.props.damage += target.props.damage || 0;
+                    player.props.sight += target.props.sight || 0;
                 }
 
                 this.rounds += 1;
@@ -388,8 +350,8 @@ export class WorldData {
         return segment;
     }
 
-    get<T>(type: WorldDataType<T>): T | undefined {
-        return this.segments.find<T>(v => v instanceof type);
+    get<T extends WorldDataSegment>(type: WorldDataType<T>): T | undefined {
+        return this.segments.find(v => v instanceof type) as T;
     }
 }
 
