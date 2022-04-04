@@ -209,6 +209,7 @@ export class World {
         for (const target of es) {
             let enemy = target.enemy;
             let [x, y] = target.loc;
+            let range = enemy.props.range;
 
             for (let i = 0; i < enemy.props.speed; i++) {
                 let px = this.player.x;
@@ -218,9 +219,9 @@ export class World {
                 let newx: number | null = null;
                 let newy: number | null = null;
 
-                if (Math.abs(x - px) < 2 && Math.abs(y - py) < 2) {
+                if (Math.abs(x - px) < range + 1 && Math.abs(y - py) < range + 1) {
                     player.props.health -= enemy.props.damage;
-                } else if (Math.abs(y - py) < 2) {
+                } else if (Math.abs(y - py) < range + 1) {
                     newy = y;
                     newx = x + Math.sign(px - x);
 
@@ -228,7 +229,7 @@ export class World {
                         newx = x;
                         newy = y + Math.sign(py - y);
                     }
-                } else if (Math.abs(x - px) < 2) {
+                } else if (Math.abs(x - px) < range + 1) {
                     newx = x;
                     newy = y + Math.sign(py - y);
 

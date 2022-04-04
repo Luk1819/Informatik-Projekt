@@ -1,0 +1,10 @@
+{
+    "type": 11,
+    "name": "Sniper",
+    "health": 15,
+    "damage": 40,
+    "speed": 1,
+    "range": 5,
+    "sight": 7
+
+}
