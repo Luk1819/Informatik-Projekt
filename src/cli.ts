@@ -221,6 +221,26 @@ export function ingame<T>(world: World, commandCallback: (InGameCommand) => (T &
                     }
                 }
 
+                function collectEnemyString(entity) {
+                    let entityName;
+                    let entityColor;
+                    if (entity.type == worlds.EntityType.player) {
+                        entityName = "  Player ";
+                        entityColor = chalk.green.bold
+                    } else if (entity.type == worlds.EntityType.item) {
+                        entityName = "   Item  ";
+                        entityColor = chalk.cyan;
+                    } else if (entity.type == worlds.EntityType.enemy) {
+                        entityName = correctLength(entity.props.name, 9)
+                        entityColor = chalk.red.italic
+                    } else {
+                        entityName = " Unknown ";
+                        entityColor = chalk.magenta.bold.italic
+                    }
+    
+                    return entityColor(entityName);
+                }
+
                 let cleanedTileName = tile.data.name.replace(/{[\w.(),]* ([a-zA-Z0-9 .-_]*)}/, "$1");
                 let tileName = correctLength(tile.data.name, 9, cleanedTileName.length)
                 let tileText = template(tileName);
@@ -237,33 +257,21 @@ export function ingame<T>(world: World, commandCallback: (InGameCommand) => (T &
                     lines[offset + 4] += chalk.white(" <_____> ");
                 }
 
-                if (visited && tile.data.wall) {
+                if (visited && tile.data.fill) {
                     let fill = chalk.black.bold(" ####### ");
                     lines[offset] += fill;
                     lines[offset + 1] += fill;
                     lines[offset + 2] += fill;
-                    lines[offset + 3] += fill;
-                } else if (entity && visible && visited) {
-                    let entityName;
-                    let entityColor;
-                    if (entity.type == worlds.EntityType.player) {
-                        entityName = "  Player ";
-                        entityColor = chalk.green.bold
-                    } else if (entity.type == worlds.EntityType.item) {
-                        entityName = "   Item  ";
-                        entityColor = chalk.cyan;
-                    } else if (entity.type == worlds.EntityType.enemy) {
-                        entityName = correctLength(entity.props.name, 9)
-                        entityColor = chalk.red.italic
+                    if (entity && visible) {
+                        lines[offset + 3] += collectEnemyString(entity);
                     } else {
-                        entityName = " Unknown ";
-                        entityColor = chalk.magenta.bold.italic
+                        lines[offset + 3] += fill;
                     }
-
-                    lines[offset] += entityColor(entityName);
+                } else if (entity && visible && visited) {
+                    lines[offset] += collectEnemyString(entity);
                     lines[offset + 1] += chalk.redBright.bold(" + : " + entity.props.health.toString().padEnd(3) + " ");
                     if (entity.props.damage) {
-                        lines[offset + 2] += chalk.red(" I : " + entity.props.damage.toString().padEnd(3) + " ");
+                        lines[offset + 2] += chalk.red(" ! : " + entity.props.damage.toString().padEnd(3) + " ");
                     } else {
                         emptyLine(2);
                     }

@@ -73,6 +73,7 @@ export class TileData extends JsonInitialized {
     portal!: (pos: Position, world: World) => TilePortalData;
     wall!: boolean;
     blocksVision!: boolean;
+    fill!: boolean;
     name!: string;
     mapName!: string;
 
@@ -91,6 +92,9 @@ export class TileData extends JsonInitialized {
                 default: false,
             },
             blocksVision: {
+                default: false,
+            },
+            fill: {
                 default: false,
             },
             name: {
@@ -116,6 +120,7 @@ class TileDataInstance {
     portal: TilePortalData;
     wall: boolean;
     blocksVision: boolean;
+    fill: boolean;
     name: string;
     mapName: string;
     pos: Position;
@@ -126,6 +131,7 @@ class TileDataInstance {
         this.portal = data.portal(pos, world);
         this.wall = data.wall;
         this.blocksVision = data.blocksVision;
+        this.fill = data.fill || data.wall;
         this.name = data.name;
         this.mapName = data.mapName;
         this.pos = pos;
