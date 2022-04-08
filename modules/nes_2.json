@@ -11,7 +11,7 @@
     ],
     "enemies": [
         { "pos": [ 2, 1 ], "type": 3 },
-        { "pos": [ 3, 3 ], "type": 1 }
+        { "pos": [ 3, 3 ], "type": 9 }
     ],
     "goalPos": [ 1, 1 ]
 }

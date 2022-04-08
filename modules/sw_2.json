@@ -12,7 +12,7 @@
     "enemies": [
         { "pos": [ 5, 5 ], "type": 2 },
         { "pos": [ 1, 1 ], "type": 8 },
-        { "pos": [ 4, 3 ], "type": 1 }
+        { "pos": [ 4, 3 ], "type": 9 }
     ],
     "goalPos": [ 3, 3 ]
 }
