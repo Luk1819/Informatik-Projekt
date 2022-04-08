@@ -2,6 +2,7 @@ import { Direction } from "./world.js";
 import {readDataFolder, arrayEquals, println} from "./utils.js";
 import {readTiles, TileData, TileDefinition} from "./maze.js";
 
+// A module used by the generator
 export class Module {
     directions: Direction[];
     maze: TileData[][];
@@ -23,12 +24,14 @@ export class Module {
 }
 
 
+// Returns all modules that have the given directions
 export function filterModules(modules: Module[], directions: Direction[]) {
     return modules.filter(function (module: Module) {
         return arrayEquals(directions, module.directions);
     });
 }
 
+// Check whether the given combination has at least one module to cover it
 function checkDirection(missing: Direction[][], toCheck: Direction[]) {
     let available = filterModules(modules, toCheck);
     if (available.length == 0 && !missing.some(v => arrayEquals(toCheck, v))) {
@@ -36,6 +39,7 @@ function checkDirection(missing: Direction[][], toCheck: Direction[]) {
     }
 }
 
+// Checks all combinations have at least on module
 export function check() {
     let missing: Direction[][] = [];
 
@@ -67,11 +71,14 @@ export function check() {
 }
 
 
+// The size of one module
 export const size: [number, number] = [ 7, 7 ]
 
 
+// The registered modules
 export const modules: Module[] = [];
 
+// Creates and registers a module
 export function create(id: string, directions: (Direction | string)[], maze: (number | string)[][], enemies: { pos: [number, number], type: number }[], tiles: TileDefinition<any> = {}, goalPos: [number, number]) {
     const module = new Module(directions, maze, enemies, tiles, goalPos);
     modules.push(module);
@@ -86,6 +93,7 @@ export function read(id: string, data: string) {
     return create(id, json.directions, json.maze, json.enemies, json.tiles || {}, json.goalPos || [Math.floor((size[0] - 1) / 2), Math.floor((size[1] - 1) / 2)]);
 }
 
+// Loads all modules in the ./modules/ folder
 export function discover() {
     readDataFolder("modules", read);
 }

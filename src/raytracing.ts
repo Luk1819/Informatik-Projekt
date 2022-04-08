@@ -1,6 +1,7 @@
 import {List, Position} from "./utils.js";
 import {World} from "./world.js";
 
+// Scans 90° of view from the given storage
 function scanArc(storage: Storage, world: World, distance: number, min: number, max: number, rotate: (x: number, y: number) => [number, number]) {
     if (distance >= storage.sightRadius || min >= max) {
         return;
@@ -21,6 +22,7 @@ function scanArc(storage: Storage, world: World, distance: number, min: number, 
     scanArc(storage, world, distance + 1, min, max, rotate);
 }
 
+// Storage class for raytracing
 export class Storage {
     size: [number, number];
     sightRadius: number;
@@ -34,6 +36,7 @@ export class Storage {
         this.data = List(size[0], () => List(size[1], () => false));
     }
 
+    // Returns whether the given tile is visible
     get(x: number, y: number) {
         if (x < 0 || y < 0 || x >= this.size[0] || y >= this.size[1]) {
             return false;
@@ -49,6 +52,7 @@ export class Storage {
     }
 }
 
+// Creates a vision map for the given world, sight range and center
 export function createVisionMap(world: World, sight: number, center: Position) {
     let storage = new Storage(world.maze.size, sight + 1, center);
 

@@ -32,6 +32,7 @@ export enum EntityType {
     item,
 }
 
+// An instance of a maze
 export class World {
     maze: mazes.Maze;
     data: WorldData;
@@ -49,6 +50,7 @@ export class World {
         this.maze = maze;
         this.data = new WorldData(this);
         let world = this;
+        // Construct the tiles from the TileData
         this.tiles = List(maze.size[0], function (x) {
             return List(maze.size[1], function (y) {
                 let tile = maze.get(x, y);
@@ -60,6 +62,7 @@ export class World {
         this.playerVisibilityMap = null;
         let {x, y} = maze.start;
         this.player = new Position(x, y);
+        // Add the player
         this.set(x, y, {
             type: EntityType.player,
             props: {
@@ -69,14 +72,17 @@ export class World {
             },
         });
 
+        // Discover the area around the player
         this.visit();
 
+        // Add the enemies
         for (let enemy of maze.enemies) {
             let pos = new Position(enemy.pos)
             this.set(pos.x, pos.y, this.createEnemy(enemy.type));
         }
     }
 
+    // Returns an enemy instance of the given enemy type
     createEnemy(type: number) {
         return {
             type: EntityType.enemy,
@@ -84,6 +90,7 @@ export class World {
         };
     }
 
+    // Returns a drop from the  given enemy, if any
     createDrop(enemy: { type: EntityType, props: EnemyInstance }) {
         let id = enemy.props.loot;
         if (!id) {
@@ -102,6 +109,7 @@ export class World {
     }
 
 
+    // Check whether a given tile is known to the player
     isVisited(x: number, y: number) {
         const line = this.visited[x];
         if (line) {
@@ -113,6 +121,7 @@ export class World {
         }
     }
 
+    // Marks a given tile as known to the player
     setVisited(x: number, y: number) {
         const line = this.visited[x];
         if (line) {
@@ -123,6 +132,7 @@ export class World {
         }
     }
 
+    // Mark all tiles in the visibility range of the player as visited
     visit() {
         let {x, y} = this.player;
         let range = this.get(this.player.x, this.player.y)!.props.sight + 2;
@@ -136,6 +146,7 @@ export class World {
         }
     }
 
+    // Checks whether the given tile is visible to the player
     isVisible(x: number, y: number) {
         if (this.playerVisibilityMap == null) {
             this.playerVisibilityMap = createVisionMap(this, this.get(this.player.x, this.player.y)!.props.sight, this.player);
@@ -144,10 +155,12 @@ export class World {
         return this.playerVisibilityMap.get(x, y);
     }
 
+    // Triggers a new vision map creation
     markVisibilityDirty() {
         this.playerVisibilityMap = null;
     }
 
+    // Returns the entity on a given tile
     get(x: number, y: number) {
         const line = this.entities[x];
         if (line) {
@@ -159,6 +172,7 @@ export class World {
         }
     }
 
+    // Set the entity on a given tile
     set(x: number, y: number, value: { type: EntityType, props: any } | null) {
         const line = this.entities[x];
         if (line) {
@@ -169,26 +183,32 @@ export class World {
         }
     }
 
+    // Returns the tile at the given coordinates
     tileAt(x: number, y: number) {
         return this.tiles[x][y];
     }
 
+    // Checks whether the given tile is a wall
     isWall(x: number, y: number) {
         return x >= 0 && x < this.maze.size[0] && y >= 0 && y < this.maze.size[1] && this.tileAt(x, y).data.wall;
     }
 
+    // Checks whether the given tile blocks vision
     blocksVision(x: number, y: number) {
         return x >= 0 && x < this.maze.size[0] && y >= 0 && y < this.maze.size[1] && this.tileAt(x, y).data.blocksVision;
     }
 
+    // Ticks all tiles
     tick() {
         this.data.callNewTurn();
         this.tiles.forEach(row => row.forEach(tile => tile.tick()));
     }
 
+    // Process enemies and move them if required
     enemyMove() {
         let es: { enemy: { type: EntityType, props: EnemyInstance }, loc: [number, number] }[] = [];
 
+        // Collect all enemies that see the player
         for (let x = 0; x < this.maze.size[0]; x++) {
             for (let y = 0; y < this.maze.size[1]; y++) {
                 let enemy = this.get(x, y);
@@ -211,6 +231,7 @@ export class World {
             let [x, y] = target.loc;
             let range = enemy.props.range;
 
+            // For every speed the enemy has
             for (let i = 0; i < enemy.props.speed; i++) {
                 let px = this.player.x;
                 let py = this.player.y;
@@ -219,8 +240,10 @@ export class World {
                 let newx: number | null = null;
                 let newy: number | null = null;
 
+                // Check whether it can hit the player
                 if (Math.abs(x - px) < range + 1 && Math.abs(y - py) < range + 1) {
                     player.props.health -= enemy.props.damage;
+                // Otherwise try to move it
                 } else if (Math.abs(y - py) < range + 1) {
                     newy = y;
                     newx = x + Math.sign(px - x);
@@ -247,6 +270,7 @@ export class World {
                     }
                 }
 
+                // If we need to move and it is possible, do it
                 if (newx !== null && newy !== null && this.get(newx, newy) == null && !this.isWall(newx, newy)) {
                     this.set(x, y, null);
                     this.set(newx, newy, enemy);
@@ -258,11 +282,14 @@ export class World {
         }
     }
 
+    // Makes the player go in the given direcction
     walk(dir: Direction) {
         let {x, y} = this.player;
         let player = this.get(x, y)!;
 
+        // Moves the player to the given tile and returns whether it was a legal move
         let moveTo = (newx, newy) => {
+            // It's illegal to go outside the  map
             if (newx < 0 || newy < 0 || newx >= this.maze.size[0] || newy >= this.maze.size[1]) {
                 return false;
             }
@@ -270,6 +297,7 @@ export class World {
             let target = this.get(newx, newy);
             let targetTile = this.tileAt(newx, newy);
 
+            // If we can go there, move  the player
             if ((target === null || target.type == EntityType.item) && !targetTile.data.wall) {
                 this.set(x, y, null);
                 this.set(newx, newy, player);
@@ -278,6 +306,7 @@ export class World {
                 this.markVisibilityDirty();
                 this.visit();
 
+                // If there is an item, collect it
                 if (target) {
                     let max = target.props.maxHealth;
                     if (max) {
@@ -294,7 +323,9 @@ export class World {
 
                 this.rounds += 1;
                 return true;
+            // If the entity is not an item
             } else if (target !== null) {
+                // It's an enemy and we attack it
                 target.props.health -= player.props.damage;
 
                 if (target.props.health <= 0) {
@@ -304,6 +335,7 @@ export class World {
 
                 this.rounds += 1;
                 return true;
+            // Everything else shouldn't happen
             } else {
                 return false;
             }
@@ -322,15 +354,18 @@ export class World {
         }
     }
 
+    // Checks whether the player is either dead or won
     isFinished() {
         return (this.player.x == this.maze.end.x && this.player.y == this.maze.end.y) || !this.survived();
     }
 
+    // Checks whether the player is not dead
     survived() {
         return this.get(this.player.x, this.player.y)!.props.health > 0;
     }
 }
 
+// Saves data the tiles may need
 export class WorldData {
     segments: WorldDataSegment[] = [];
     world: World;
@@ -340,30 +375,36 @@ export class WorldData {
     }
 
 
+    // Call the new turn callback for each registered data segment
     callNewTurn() {
         this.segments.forEach(v => v.newTurn());
     }
 
 
+    // Registers a data segment
     register<T extends WorldDataSegment>(type: WorldDataType<T>): T {
         let segment = new type(this.world);
         this.segments.push(segment);
         return segment;
     }
 
+    // Returns a data segment of the given type, if found
     get<T extends WorldDataSegment>(type: WorldDataType<T>): T | undefined {
         return this.segments.find(v => v instanceof type) as T;
     }
 }
 
+// A data segment type
 export interface WorldDataType<T extends WorldDataSegment> {
     new(world: World): T;
 }
 
+// An actual data  segment
 export interface WorldDataSegment {
     newTurn();
 }
 
+// Creates a world from a given maze
 export function create(maze) {
     return new World(maze);
 }

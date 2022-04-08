@@ -18,6 +18,7 @@ class Loot {
         this.content = content;
     }
 
+    // Returns an item from this loot table
     get() {
         let rand = Math.random();
 
@@ -33,8 +34,10 @@ class Loot {
     }
 }
 
+// The registered loot tables
 export const tables: { [id: string]: Loot } = {};
 
+// Creates a loot table and registers it
 export function create(id: string, content: LootEntry[]) {
     const loot = new Loot(content);
     tables[id] = loot;
@@ -46,6 +49,7 @@ export function read(id: string, data: string) {
     return create(id, json.content);
 }
 
+// Loads all loot tables from the ./loot/ folder
 export function discover() {
     readDataFolder("loot", read);
 }

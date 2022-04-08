@@ -10,6 +10,7 @@ type Cell = {
     y: number
 }
 
+// Generate nodes for the given maze size 
 function generateNodes(width: number, height: number) {
     function locate(cell: Cell) {
         return cell.y * width + cell.x;
@@ -52,6 +53,7 @@ function generateNodes(width: number, height: number) {
 	return maze;
 }
 
+// Generates a maze of the given size in modules and returns it
 export function createMaze(width: number, height: number) {
     let maze = mazes.create(modules.size[0] * height, modules.size[1] * width);
     let nodes = generateNodes(width, height);
@@ -78,6 +80,7 @@ export function createMaze(width: number, height: number) {
     return maze;
 }
 
+// Find a module for the given directions and add it to the maze
 function createModule(maze: Maze, node: Cell, directions: Direction[], isStart: boolean, isEnd: boolean) {
     let possible = modules.filterModules(modules.modules, directions);
     if (possible.length == 0) {
@@ -85,6 +88,7 @@ function createModule(maze: Maze, node: Cell, directions: Direction[], isStart: 
     }
     let module = randomElement(possible);
 
+    // Add tiles
     let offset = [node.x * modules.size[0], node.y * modules.size[1]];
     for (let x = 0; x < modules.size[0]; x++) {
         for (let y = 0; y < modules.size[1]; y++) {
@@ -92,6 +96,7 @@ function createModule(maze: Maze, node: Cell, directions: Direction[], isStart: 
         }
     }
 
+    // Add enemies
     for (let entry of module.enemies) {
         maze.enemies.push({
             pos: [offset[0] + entry.pos[0], offset[1] + entry.pos[1]],
@@ -99,6 +104,7 @@ function createModule(maze: Maze, node: Cell, directions: Direction[], isStart: 
         });
     }
 
+    // Set goal and start
     let goalPos = new Position(offset[0] + module.goalPos[0], offset[1] + module.goalPos[1]);
     if (isStart) {
         maze.start = goalPos;

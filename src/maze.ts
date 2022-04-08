@@ -3,6 +3,7 @@ import { WorldDataSegment, World, WorldDataType } from "./world.js";
 
 export type TileDefinition<T> = { [id: (number | string)]: T };
 
+// A maze / template
 export class Maze {
     array: TileData[][];
     start: Position;
@@ -26,6 +27,7 @@ export class Maze {
         order: "custom",
         text: []
     }) {
+        // Parse the tiles
         this.array = readTiles(size, array, tiles);
         this.start = new Position(start);
         this.end = new Position(end);
@@ -35,10 +37,12 @@ export class Maze {
         this.data = data;
     }
 
+    // Returns the tile at the given position
     get(x: number, y: number) {
         return this.array[x][y];
     }
 
+    // Sets the tile at the given position
     set(x: number, y: number, value: TileData) {
         this.array[x][y] = value;
     }
@@ -52,6 +56,7 @@ type MazeData = {
     text: string[]
 }
 
+// An actual tile
 export class Tile {
     data: TileDataInstance;
     pos: Position;
@@ -63,18 +68,27 @@ export class Tile {
         this.data = data.create(this.pos, this.world);
     }
 
+    // Ticks this tile's data
     tick() {
         this.data.tick();
     }
 }
 
+// The template for a tile
 export class TileData extends JsonInitialized {
+    // Creator for the spawner data
     spawner!: (pos: Position, world: World) => TileSpawnerData;
+    // Creator for the portal data
     portal!: (pos: Position, world: World) => TilePortalData;
+    // This tile blocks entities from entering it
     wall!: boolean;
+    // One cannot see through this tile
     blocksVision!: boolean;
+    // This tile looks like a wall
     fill!: boolean;
+    // The template for this tile's name
     name!: string;
+    // The template for this tile's minimap symbol
     mapName!: string;
 
     constructor(data: any = {}) {
@@ -106,15 +120,18 @@ export class TileData extends JsonInitialized {
         });
     }
 
+    // Create an instance of this tile
     create(pos: Position, world: World) {
         return new TileDataInstance(this, pos, world);
     }
 }
 
+// Tile behavoiur, e.g. a portal or spawner
 interface TileBehaviourData {
     tick(tileData: TileDataInstance);
 }
 
+// The instance of a tile (with actual spawner data)
 class TileDataInstance {
     spawner: TileSpawnerData;
     portal: TilePortalData;
@@ -138,15 +155,20 @@ class TileDataInstance {
         this.world = world;
     }
 
+    // Tick this tile's behaviours
     tick() {
         this.spawner.tick(this);
         this.portal.tick(this);
     }
 }
 
+// The spawner component of a tile
 class TileSpawnerData extends JsonInitialized implements TileBehaviourData {
+    // The enemy type to spawn
     enemy!: number;
+    // The cooldown after an enemy was spawned
     cooldown!: number;
+    // The cooldown curently left
     cooldownLeft: number
     pos: Position;
     world: World;
@@ -166,11 +188,14 @@ class TileSpawnerData extends JsonInitialized implements TileBehaviourData {
         this.world = world;
     }
 
+    // Ticks this spawner
     tick(tileData: TileDataInstance) {
+        // If on a wall, we cannot spawn anything
         if (tileData.wall) {
             return;
         }
 
+        // Only spawn if there is something to spawn
         if (this.enemy != -1) {
             if (this.cooldownLeft <= 0 && this.world.get(this.pos.x, this.pos.y) == null) {
                 this.world.set(this.pos.x, this.pos.y, this.world.createEnemy(this.enemy));
@@ -182,19 +207,24 @@ class TileSpawnerData extends JsonInitialized implements TileBehaviourData {
     }
 }
 
+// The data stored per world for the portal component
 class WorldPortalData implements WorldDataSegment {
     world: World;
+    // The portals registered per id (frequency)
     portals: { [id: string]: Position[] } = {};
+    // Whether the player was teleported this turn
     teleported: boolean = false;
 
     constructor(world: World) {
         this.world = world;
     }
 
+    // Allow the player to teleport again
     newTurn() {
         this.teleported = false;
     }
 
+    // Registers a portal
     registerPortal(portal: TilePortalData) {
         let all = this.portals[portal.id];
         if (all) {
@@ -205,6 +235,7 @@ class WorldPortalData implements WorldDataSegment {
         }
     }
 
+    // Returns the portal to teleport to
     getTarget(portal: TilePortalData) {
         let all = this.portals[portal.id].filter(v => !Position.equals(v, portal.pos));
         if (all.length == 0) {
@@ -216,9 +247,13 @@ class WorldPortalData implements WorldDataSegment {
 
 const WorldPortalDataType: WorldDataType<WorldPortalData> = WorldPortalData;
 
+// The portal component of a tile
 export class TilePortalData extends JsonInitialized implements TileBehaviourData {
+    // The id (frequency) of this portal
     id!: string | -1;
+    // Whether this portal can be  teleported  to
     isTarget!: boolean;
+    // Whether the player can teleport away from this portal
     isSource!: boolean;
     pos: Position;
     world: World;
@@ -239,18 +274,23 @@ export class TilePortalData extends JsonInitialized implements TileBehaviourData
         this.pos = pos;
         this.world = world;
 
+        // Create the world data if it doesn't exist yet
         if (!this.world.data.get(WorldPortalDataType)) {
             this.world.data.register(WorldPortalDataType);
         }
 
+        // Only register if we allow the player to telelport here
         if (this.isTarget) {
             this.world.data.get(WorldPortalDataType)!.registerPortal(this);
         }
     }
 
+    // Ticks this portal
     tick(tileData: TileDataInstance) {
+        // Only teleport if allowed and the player is on this  tile
         if (this.isSource && this.id != -1 && !this.world.data.get(WorldPortalDataType)!.teleported && Position.equals(this.world.player, this.pos)) {
             let target = this.world.data.get(WorldPortalDataType)!.getTarget(this)
+            // Also check there is nothing on the target tile
             if (target != null && this.world.get(target.x, target.y) == null) {
                 let {x, y} = this.world.player;
                 let player = this.world.get(x, y);
@@ -267,6 +307,7 @@ export class TilePortalData extends JsonInitialized implements TileBehaviourData
     }
 }
 
+// Parse the tile definitions into the TileData array
 export function readTiles(size: [number, number], array: (number | string)[][], tiles: TileDefinition<any>) {
     return List(size[0], function (x) {
         return List(size[1], function (y) {
@@ -280,6 +321,7 @@ export function readTiles(size: [number, number], array: (number | string)[][], 
     });
 }
 
+// Create an empty maze of the given size
 export function create(x: number, y: number) {
     let array: (number | string)[][] = [];
     for (let i = 0; i < x; i++) {
@@ -292,6 +334,7 @@ export function create(x: number, y: number) {
     return new Maze(array, [0, 0], [x - 1, y - 1], [], [x, y], {hp: 100, damage: 24});
 }
 
+// The default tile types (wall and stone)
 const defaultTiles: TileDefinition<TileData> = {
     0: new TileData({
         wall: true,
@@ -305,8 +348,10 @@ const defaultTiles: TileDefinition<TileData> = {
     })
 }
 
+// The loaded mazes
 export const mazes: { [id: string]: Maze } = {};
 
+// Loads a maze and registers it
 export function read(id: string, data: string) {
     const json = JSON.parse(data);
 
@@ -321,6 +366,7 @@ export function read(id: string, data: string) {
     return maze;
 }
 
+// Loads mazes in the ./mazes/ folder
 export function discover() {
     readDataFolder("mazes", read);
 }
