@@ -1,9 +1,10 @@
 {
     "type": 6,
     "name": "Boss",
-    "health": 333,
-    "damage": 44,
-    "speed": 3,
-    "vision": 5
+    "health": 111,
+    "damage": 11,
+    "speed": 4,
+    "vision": 9,
+    "range": 5
 
 }
