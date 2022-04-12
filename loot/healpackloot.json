@@ -3,8 +3,8 @@
         {
             "chance": 1,
             "item": {
-                "health": 187,
-                "maxHealth": 187
+                "health": 222,
+                "maxHealth": 333
             }
         }
     ]
