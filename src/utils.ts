@@ -145,7 +145,7 @@ export class JsonInitialized {
 
     loadKey(data: any | null, key: string, options: { default: any, creator?(arg: any): any }) {
         let creator = options.creator || (v => v);
-        if (data && data[key]) {
+        if ((data != null || data != undefined) && (data[key] != null || data[key] != undefined)) {
             this[key] = creator(data[key]);
         } else {
             this[key] = creator(options.default);
