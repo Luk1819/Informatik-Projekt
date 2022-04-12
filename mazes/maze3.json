@@ -43,9 +43,6 @@
         [0, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 0, 1, 0, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0],
         [0, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0],
         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-
-
-
     ],
     "enemies": [
         { "pos": [ 2, 8 ], "type": 2 },
@@ -95,7 +92,7 @@
                 "cooldown": 6
             },
             "name": "{bold.green Spawner}",
-            "mapName": "{bold.green 1}"
+            "mapName": "{bold.green S}"
         },
         "3": {
             "wall": true,
@@ -107,28 +104,28 @@
                 "id": "1"
             },
             "name": "{bold.rgb(0,255,255) Portal 1}",
-            "mapName": "{bold.rgb(0,255,255) 2}"
+            "mapName": "{bold.rgb(0,255,255) 1}"
         },
         "5": {
             "portal": {
                 "id": "2"
             },
             "name": "{bold.rgb(0,255,255) Portal 2}",
-            "mapName": "{bold.rgb(0,255,255) 3}"
+            "mapName": "{bold.rgb(0,255,255) 2}"
         },
         "6": {
             "portal": {
                 "id": "3"
             },
             "name": "{bold.rgb(0,255,255) Portal 3}",
-            "mapName": "{bold.rgb(0,255,255) 4}"
+            "mapName": "{bold.rgb(0,255,255) 3}"
         },
         "7": {
             "portal": {
                 "id": "4"
             },
             "name": "{bold.rgb(0,255,255) Portal 4}",
-            "mapName": "{bold.rgb(0,255,255) 5}"
+            "mapName": "{bold.rgb(0,255,255) 4}"
         },
         "8": {
             "portal": {
